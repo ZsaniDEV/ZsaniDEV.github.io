@@ -21,7 +21,9 @@ const EVENT_TRANSLATIONS = {
   'retrograde': 'Látszólagos hátráló mozgás', 'direct': 'Előrehaladó mozgás',
   'ingress': 'Belépés egy új csillagjegybe', 'conjunction': 'Együttállás', 'opposition': 'Szembenállás',
   'trine': 'Trigon fényszög', 'square': 'Kvadrát fényszög', 'sextile': 'Szextil fényszög',
-  'station retrograde': 'Hátráló mozgás kezdete', 'station direct': 'Előrehaladó mozgás kezdete',
+  'station retrograde': 'Hátráló mozgás kezdete', 'station direct': 'A hátráló mozgás vége',
+  'season start': 'Az időszak kezdete', 'retrograde start': 'A látszólagos hátráló mozgás kezdete',
+  'retrograde end': 'A látszólagos hátráló mozgás vége', 'season end': 'Az időszak vége',
   'aries': 'Kos', 'taurus': 'Bika', 'gemini': 'Ikrek', 'cancer': 'Rák', 'leo': 'Oroszlán',
   'virgo': 'Szűz', 'libra': 'Mérleg', 'scorpio': 'Skorpió', 'sagittarius': 'Nyilas',
   'capricorn': 'Bak', 'aquarius': 'Vízöntő', 'pisces': 'Halak'
@@ -63,13 +65,13 @@ function translateEventText(value) {
 
   let result = original;
   const replacements = [
-    [/The sun enters (\w+) at ([\d:]+\s*[ap]m)(?:\s+[A-Z]{1,4})? on ([A-Za-z]+ \d{1,2},? \d{4}), running until ([A-Za-z]+ \d{1,2},? \d{4})\.?/i,
+    [/^The sun enters (\w+) at ([\d:]+\s*[ap]m)(?:\s+[A-Z]{1,4})? on ([A-Za-z]+ \d{1,2},? \d{4}), running until ([A-Za-z]+ \d{1,2},? \d{4})\.?$/i,
       (_, s, time, date, until) => `A Nap ${formatEnglishDate(date)} napján ${formatEnglishTime(time)}-kor belép a ${sign(s)} jegyébe, és ${formatEnglishDate(until)} napjáig ott tartózkodik.`],
     [/The (new moon|full moon) reaches ([\d.]+)° (\w+) at ([\d:]+\s*[ap]m)(?:\s+[A-Z]{1,4})? on ([A-Za-z]+ \d{1,2},? \d{4})\.?/i,
       (_, phase, degree, s, time, date) => `${/^new/i.test(phase) ? 'Az újhold' : 'A telihold'} ${formatEnglishDate(date)} napján ${formatEnglishTime(time)}-kor a ${sign(s)} jegy ${degree}. fokánál következik be.`],
-    [/(Mercury|Venus|Mars|Jupiter|Saturn|Uranus|Neptune|Pluto) stations retrograde at ([\d.]+)° (\w+) on ([A-Za-z]+ \d{1,2}, \d{4}), and turns direct again on ([A-Za-z]+ \d{1,2}, \d{4})\./i,
+    [/^(Mercury|Venus|Mars|Jupiter|Saturn|Uranus|Neptune|Pluto) stations retrograde at ([\d.]+)° (\w+) on ([A-Za-z]+ \d{1,2},? \d{4}), and turns direct again on ([A-Za-z]+ \d{1,2},? \d{4})\.?$/i,
       (_, planet, degree, s, date, until) => `A ${prettyPlanetName(planet)} ${formatEnglishDate(date)} napján kezdi meg látszólagos hátráló mozgását a ${sign(s)} jegy ${degree}. fokánál. A mozgás ${formatEnglishDate(until)} napján ér véget.`],
-    [/(Mercury|Venus|Mars|Jupiter|Saturn|Uranus|Neptune|Pluto) stations direct at ([\d.]+)° (\w+) on ([A-Za-z]+ \d{1,2}, \d{4}), ending the retrograde motion that began ([A-Za-z]+ \d{1,2}, \d{4})\./i,
+    [/^(Mercury|Venus|Mars|Jupiter|Saturn|Uranus|Neptune|Pluto) stations direct at ([\d.]+)° (\w+) on ([A-Za-z]+ \d{1,2},? \d{4}), ending the retrograde motion that began ([A-Za-z]+ \d{1,2},? \d{4})\.?$/i,
       (_, planet, degree, s, date, began) => `A ${prettyPlanetName(planet)} ${formatEnglishDate(date)} napján befejezi látszólagos hátráló mozgását a ${sign(s)} jegy ${degree}. fokánál. A hátrálás ${formatEnglishDate(began)} napján kezdődött.`]
   ];
   for (const [pattern, formatter] of replacements) {
