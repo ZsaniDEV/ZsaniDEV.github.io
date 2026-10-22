@@ -22,3 +22,13 @@ footer{max-width:1120px;margin:20px auto 0;padding:28px;display:flex;flex-wrap:w
 .event-details section{margin-top:13px}
 .event-details h4{font-size:.87rem;margin:0 0 5px;color:#f2dfb8}
 .event-details p{margin:0;color:var(--muted);font-size:.88rem;line-height:1.65}
+
+
+/* Layout for separately grouped today's and upcoming events */
+#sky-events{display:flex;flex-direction:column;gap:24px;min-width:0}
+.event-list-section{min-width:0}
+.event-list-heading{margin:0 0 14px;font-size:1.15rem;line-height:1.35}
+.today-empty-note{margin:0;color:#c3c8d5;line-height:1.6}
+.event-list-section .event-grid{grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch}
+.event-list-section .event-card{min-width:0;overflow-wrap:anywhere}
+@media(max-width:760px){.event-list-section .event-grid{grid-template-columns:1fr}}
