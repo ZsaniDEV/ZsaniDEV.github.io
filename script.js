@@ -85,16 +85,21 @@ form.addEventListener('submit', async event => {
   chartResults.hidden = true;
   setStatus(chartStatus, 'A születési hely koordinátáinak keresése…');
   try {
-    const locationUrl = new URL(`${API}/search-location`);
+    // CosmyDay /search-location endpoint is not CORS-open. Use Nominatim directly
+    // from the browser; do not send a custom User-Agent header (browsers forbid it).
+    const locationUrl = new URL('https://nominatim.openstreetmap.org/search');
     locationUrl.searchParams.set('q', place);
-    const locationResponse = await fetch(locationUrl);
+    locationUrl.searchParams.set('format', 'jsonv2');
+    locationUrl.searchParams.set('limit', '1');
+    locationUrl.searchParams.set('accept-language', 'hu');
+    const locationResponse = await fetch(locationUrl, { headers: { 'Accept': 'application/json' } });
     if (!locationResponse.ok) throw new Error('A születési hely keresése nem sikerült. Próbáld a város nevét országgal együtt megadni.');
     const locations = await locationResponse.json();
-    if (Array.isArray(locations) && !locations.length) throw new Error('Nem találtuk a várost. Add meg pontosabban, például: Szeged, Magyarország.');
-    const location = Array.isArray(locations) ? locations[0] : (locations.results?.[0] || locations.location || locations);
-    if (!location) throw new Error('A város keresése nem adott vissza találatot.');
-    const lat = Number(location.lat ?? location.latitude);
-    const lon = Number(location.lon ?? location.lng ?? location.longitude);
+    if (!Array.isArray(locations) || !locations.length) throw new Error('Nem találtuk a várost. Add meg pontosabban, például: Szeged, Magyarország.');
+    const location = locations[0];
+    const lat = Number(location.lat);
+    const lon = Number(location.lon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) throw new Error('A városhoz nem kaptunk érvényes koordinátákat.');
     setStatus(chartStatus, 'A születési képlet számítása…');
     const response = await fetch(`${API}/natal`, {
       method: 'POST',
