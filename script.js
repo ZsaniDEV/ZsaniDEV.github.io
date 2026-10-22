@@ -33,9 +33,7 @@ function translateEventText(value) {
   if (EVENT_TRANSLATIONS[normalized]) return EVENT_TRANSLATIONS[normalized];
   let result = normalized;
   for (const [english, hungarian] of Object.entries(EVENT_TRANSLATIONS).sort((a, b) => b[0].length - a[0].length)) {
-    result = result.replace(new RegExp(english.replace(/[.*+?^\u0024{}()|[\]\\\\]/g, '\\function readableLabel(value) {
-  return String(value).replaceAll('_', ' ').replace(/\b\w/g, letter => letter.toUpperCase());
-}'), 'gi'), hungarian);
+    result = result.replaceAll(english, hungarian.toLowerCase());
   }
   return result === normalized ? original.replaceAll('_', ' ') : result.charAt(0).toLocaleUpperCase('hu-HU') + result.slice(1);
 }
