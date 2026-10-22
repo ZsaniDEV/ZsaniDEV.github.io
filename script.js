@@ -41,89 +41,171 @@ function renderObjectGrid(title, object) {
   section.append(grid);
   return section;
 }
+const SIGN_NAMES = ['Kos','Bika','Ikrek','Rák','Oroszlán','Szűz','Mérleg','Skorpió','Nyilas','Bak','Vízöntő','Halak'];
+const SIGN_GLYPHS = ['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
+const PLANET_NAMES = {
+  sun: 'Nap', moon: 'Hold', mercury: 'Merkúr', venus: 'Vénusz', mars: 'Mars',
+  jupiter: 'Jupiter', saturn: 'Szaturnusz', uranus: 'Uránusz', neptune: 'Neptunusz',
+  pluto: 'Plútó', northnode: 'Felszálló holdcsomópont', southnode: 'Leszálló holdcsomópont',
+  chiron: 'Chiron', lilith: 'Lilith'
+};
+function longitudePosition(value) {
+  const longitude = Number(value);
+  if (!Number.isFinite(longitude)) return null;
+  const normalized = ((longitude % 360) + 360) % 360;
+  const signIndex = Math.floor(normalized / 30);
+  const withinSign = normalized - signIndex * 30;
+  return { sign: SIGN_NAMES[signIndex], glyph: SIGN_GLYPHS[signIndex], degrees: Math.floor(withinSign), minutes: Math.round((withinSign % 1) * 60) % 60, decimal: withinSign };
+}
+function formatPosition(value) {
+  const position = longitudePosition(value);
+  return position ? `${position.glyph} ${position.sign} ${position.degrees}°${String(position.minutes).padStart(2, '0')}′` : 'Nincs adat';
+}
+function prettyPlanetName(key) {
+  const normalized = String(key).replace(/[_\s-]/g, '').toLowerCase();
+  return PLANET_NAMES[normalized] || readableLabel(key);
+}
+function createResultCard(labelText, valueText, extraClass = '') {
+  const card = document.createElement('article');
+  card.className = `result-feature ${extraClass}`.trim();
+  const label = document.createElement('span');
+  label.className = 'result-feature-label';
+  label.textContent = labelText;
+  const value = document.createElement('strong');
+  value.className = 'result-feature-value';
+  value.textContent = valueText;
+  card.append(label, value);
+  return card;
+}
+function createDetailItem(labelText, valueText, hint = '') {
+  const item = document.createElement('div');
+  item.className = 'detail-item';
+  const label = document.createElement('span');
+  label.className = 'detail-item-label';
+  label.textContent = labelText;
+  const value = document.createElement('strong');
+  value.textContent = valueText;
+  item.append(label, value);
+  if (hint) {
+    const note = document.createElement('small');
+    note.textContent = hint;
+    item.append(note);
+  }
+  return item;
+}
+function createDisclosure(titleText, countText = '') {
+  const details = document.createElement('details');
+  details.className = 'result-disclosure';
+  const summary = document.createElement('summary');
+  summary.textContent = titleText;
+  if (countText) {
+    const count = document.createElement('span');
+    count.className = 'disclosure-count';
+    count.textContent = countText;
+    summary.append(count);
+  }
+  const content = document.createElement('div');
+  content.className = 'disclosure-content';
+  details.append(summary, content);
+  return { details, content };
+}
 function renderChartData(data) {
   chartResults.replaceChildren();
   chartResults.hidden = false;
-
-  const intro = document.createElement('div');
-  intro.className = 'result-panel';
-  const heading = document.createElement('h3');
-  heading.textContent = 'A számítás eredménye';
+  const heading = document.createElement('div');
+  heading.className = 'results-intro';
+  const title = document.createElement('h3');
+  title.textContent = 'A születési képleted';
   const note = document.createElement('p');
-  note.className = 'field-help';
-  note.textContent = 'A bolygóállások és a házcsúcsok a CosmyDay számításából származnak. Az értékek fokban szerepelnek, ahol ezt az API megadja.';
-  intro.append(heading, note);
-  chartResults.append(intro);
+  note.textContent = 'Az alábbi összefoglaló a megadott születési adatok alapján készült. A jegyek és fokok a számított égi pozíciókat mutatják.';
+  heading.append(title, note);
+  chartResults.append(heading);
 
-  const summary = {};
-  for (const key of ['houseSystem', 'ascendant', 'midheaven']) {
-    if (data[key] !== undefined && data[key] !== null) summary[key] = data[key];
+  const planets = data.planets && typeof data.planets === 'object' ? data.planets : {};
+  const getPlanet = (...names) => {
+    for (const name of names) {
+      const found = Object.entries(planets).find(([key]) => key.replace(/[_\s-]/g, '').toLowerCase() === name);
+      if (found) return found[1];
+    }
+    return null;
+  };
+  const sun = getPlanet('sun');
+  const moon = getPlanet('moon');
+  const ascendant = longitudePosition(data.ascendant);
+  const main = document.createElement('div');
+  main.className = 'results-main';
+  main.append(
+    createResultCard('Nap-jegy', sun?.sign || (sun?.longitude != null ? longitudePosition(sun.longitude)?.sign : '') || '—', 'sun-card'),
+    createResultCard('Hold-jegy', moon?.sign || (moon?.longitude != null ? longitudePosition(moon.longitude)?.sign : '') || '—', 'moon-card'),
+    createResultCard('Aszcendens', ascendant ? `${ascendant.glyph} ${ascendant.sign}` : '—', 'asc-card')
+  );
+  chartResults.append(main);
+
+  const positionStrip = document.createElement('div');
+  positionStrip.className = 'position-strip';
+  const ascValue = data.ascendant;
+  const mcValue = data.midheaven;
+  positionStrip.append(
+    createDetailItem('Aszcendens foka', formatPosition(ascValue)),
+    createDetailItem('MC – középégpont', formatPosition(mcValue)),
+    createDetailItem('Házrendszer', data.houseSystem === 'Placidus' ? 'Placidus' : (data.houseSystem || '—'))
+  );
+  chartResults.append(positionStrip);
+
+  const planetEntries = Object.entries(planets).filter(([, value]) => value && typeof value === 'object');
+  const personalKeys = ['sun','moon','mercury','venus','mars'];
+  const personal = planetEntries.filter(([key]) => personalKeys.includes(key.replace(/[_\s-]/g, '').toLowerCase()));
+  const other = planetEntries.filter(([key]) => !personalKeys.includes(key.replace(/[_\s-]/g, '').toLowerCase()));
+  const renderPlanets = (entries) => {
+    const grid = document.createElement('div');
+    grid.className = 'planet-grid';
+    for (const [key, details] of entries) {
+      const card = document.createElement('article');
+      card.className = 'planet-card';
+      const label = document.createElement('h4');
+      label.textContent = prettyPlanetName(key);
+      const sign = details.sign || (details.longitude != null ? longitudePosition(details.longitude)?.sign : '');
+      const degree = Number(details.degInSign);
+      const position = sign && Number.isFinite(degree) ? `${sign} · ${Math.floor(degree)}°${String(Math.round((degree % 1) * 60) % 60).padStart(2, '0')}′` : (details.longitude != null ? formatPosition(details.longitude) : (sign || 'Pozíció elérhető'));
+      const value = document.createElement('strong');
+      value.textContent = position;
+      const meta = document.createElement('p');
+      const metaParts = [];
+      if (details.house !== undefined && details.house !== null) metaParts.push(`${details.house}. ház`);
+      if (details.retrograde === true) metaParts.push('Retrográd mozgás');
+      meta.textContent = metaParts.join(' · ') || ' ';
+      card.append(label, value, meta);
+      grid.append(card);
+    }
+    return grid;
+  };
+  if (personal.length) {
+    const section = document.createElement('section');
+    section.className = 'result-section';
+    const h = document.createElement('h4');
+    h.textContent = 'Személyes bolygók';
+    section.append(h, renderPlanets(personal));
+    chartResults.append(section);
   }
-  const summaryPanel = renderObjectGrid('A képlet fő tengelyei', summary);
-  if (summaryPanel) chartResults.append(summaryPanel);
-
+  if (other.length) {
+    const disclosure = createDisclosure('További égitestek', `${other.length} adat`);
+    disclosure.content.append(renderPlanets(other));
+    chartResults.append(disclosure.details);
+  }
   if (Array.isArray(data.cusps) && data.cusps.length) {
-    const panel = document.createElement('section');
-    panel.className = 'result-panel';
-    const title = document.createElement('h3');
-    title.textContent = 'Házcsúcsok';
-    panel.append(title);
+    const disclosure = createDisclosure('Házak és házcsúcsok', `${data.cusps.length} ház`);
     const grid = document.createElement('div');
-    grid.className = 'data-list';
+    grid.className = 'house-grid';
     data.cusps.forEach((value, index) => {
-      const item = document.createElement('div');
-      item.className = 'data-item';
-      const label = document.createElement('strong');
-      label.textContent = `Ház ${index + 1}`;
-      const text = document.createElement('span');
-      text.textContent = `${Number(value).toFixed(4)}°`;
-      item.append(label, text);
-      grid.append(item);
+      grid.append(createDetailItem(`${index + 1}. ház`, formatPosition(value)));
     });
-    panel.append(grid);
-    chartResults.append(panel);
+    disclosure.content.append(grid);
+    chartResults.append(disclosure.details);
   }
-
-  if (data.planets && typeof data.planets === 'object') {
-    const panel = document.createElement('section');
-    panel.className = 'result-panel';
-    const title = document.createElement('h3');
-    title.textContent = 'Bolygóállások';
-    panel.append(title);
-    const grid = document.createElement('div');
-    grid.className = 'data-list';
-    for (const [planet, details] of Object.entries(data.planets)) {
-      if (!details || typeof details !== 'object') continue;
-      const item = document.createElement('div');
-      item.className = 'data-item';
-      const label = document.createElement('strong');
-      label.textContent = readableLabel(planet);
-      const parts = [];
-      if (details.sign) parts.push(String(details.sign));
-      if (Number.isFinite(Number(details.degInSign))) parts.push(`${Number(details.degInSign).toFixed(2)}° a jegyben`);
-      if (Number.isFinite(Number(details.house))) parts.push(`${details.house}. ház`);
-      if (details.retrograde === true) parts.push('retrográd');
-      const text = document.createElement('span');
-      text.textContent = parts.length ? parts.join(' · ') : Object.entries(details)
-        .filter(([, value]) => value === null || ['string', 'number', 'boolean'].includes(typeof value))
-        .map(([key, value]) => `${readableLabel(key)}: ${value}`).join(' · ');
-      item.append(label, text);
-      grid.append(item);
-    }
-    panel.append(grid);
-    chartResults.append(panel);
-  }
-
-  if (!summaryPanel && !data.cusps?.length && !data.planets) {
-    const panel = renderObjectGrid('Képletadatok', data);
-    if (panel) chartResults.append(panel);
-    else {
-      const pre = document.createElement('pre');
-      pre.className = 'result-panel';
-      pre.textContent = JSON.stringify(data, null, 2);
-      chartResults.append(pre);
-    }
-  }
+  const footer = document.createElement('p');
+  footer.className = 'results-footnote';
+  footer.textContent = 'Az asztrológia szimbolikus értelmezési rendszer. A fokértékek az ekliptikai hosszúságból átszámítva, jegyen belüli fokként jelennek meg.';
+  chartResults.append(footer);
 }
 form.addEventListener('submit', async event => {
   event.preventDefault();
