@@ -85,16 +85,16 @@ form.addEventListener('submit', async event => {
   chartResults.hidden = true;
   setStatus(chartStatus, 'A születési hely koordinátáinak keresése…');
   try {
-    const locationUrl = new URL('https://nominatim.openstreetmap.org/search');
-    locationUrl.searchParams.set('format', 'jsonv2');
-    locationUrl.searchParams.set('limit', '1');
+    const locationUrl = new URL(`${API}/search-location`);
     locationUrl.searchParams.set('q', place);
     const locationResponse = await fetch(locationUrl);
     if (!locationResponse.ok) throw new Error('A születési hely keresése nem sikerült. Próbáld a város nevét országgal együtt megadni.');
     const locations = await locationResponse.json();
-    if (!locations.length) throw new Error('Nem találtuk a várost. Add meg pontosabban, például: Szeged, Magyarország.');
-    const lat = Number(locations[0].lat);
-    const lon = Number(locations[0].lon);
+    if (Array.isArray(locations) && !locations.length) throw new Error('Nem találtuk a várost. Add meg pontosabban, például: Szeged, Magyarország.');
+    const location = Array.isArray(locations) ? locations[0] : (locations.results?.[0] || locations.location || locations);
+    if (!location) throw new Error('A város keresése nem adott vissza találatot.');
+    const lat = Number(location.lat ?? location.latitude);
+    const lon = Number(location.lon ?? location.lng ?? location.longitude);
     setStatus(chartStatus, 'A születési képlet számítása…');
     const response = await fetch(`${API}/natal`, {
       method: 'POST',
@@ -104,7 +104,7 @@ form.addEventListener('submit', async event => {
     const data = await response.json();
     if (!response.ok) throw new Error(data.detail || data.message || 'A képletszámítás nem sikerült. Ellenőrizd az adatokat, és próbáld újra.');
     renderChartData(data);
-    setStatus(chartStatus, `A képlet elkészült a következő helyhez: ${locations[0].display_name}. A születési idő pontossága az aszcendens és a házak számításánál különösen fontos.`);
+    setStatus(chartStatus, `A képlet elkészült a következő helyhez: ${(location.display_name || location.name || place)}. A születési idő pontossága az aszcendens és a házak számításánál különösen fontos.`);
   } catch (error) {
     setStatus(chartStatus, error.message || 'Nem sikerült kapcsolódni a szolgáltatáshoz. Próbáld újra később.', true);
   } finally {
