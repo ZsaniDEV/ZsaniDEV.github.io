@@ -335,6 +335,54 @@ function eventDate(value) {
   if (Number.isNaN(date.getTime())) return value;
   return new Intl.DateTimeFormat('hu-HU', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }).format(date);
 }
+function getEventGuidance(title, kind, rawDescription) {
+  const text = `${title} ${kind || ''} ${rawDescription || ''}`.toLowerCase();
+  if (/újhold|new moon/.test(text)) return {
+    summary: 'Az újhold az asztrológiában a lezárás és az új szándékok kijelölésének jelképe.',
+    experience: 'Lehet, hogy jobban esik csendben átgondolni, mit szeretnél elengedni, illetve minek adnál teret a következő hetekben. Ez inkább önreflexiós keret, nem biztosan bekövetkező hatás.',
+    watch: 'Szánj időt a tervezésre, de ne érezz nyomást arra, hogy mindent azonnal elkezdj. Nagy döntést a saját tényeid és körülményeid alapján hozz.'
+  };
+  if (/telihold|full moon/.test(text)) return {
+    summary: 'A telihold az asztrológiai hagyományban a tetőponttal és a felismerésekkel kapcsolódik össze.',
+    experience: 'Érdemes észrevenni, mi került mostanában a figyelmed középpontjába, és mely ügyek jutottak döntési ponthoz. Az erősebb érzelmek nem törvényszerűek, és nem mindenki éli meg ugyanúgy.',
+    watch: 'Ha feszültnek érzed magad, tarts szünetet, ellenőrizd a feltételezéseidet, és halaszd el az impulzív reakciót. Figyelj a pihenésre.'
+  };
+  if (/merkúr|mercury/.test(text) && /hátráló|retrograde|retrográd/.test(text)) return {
+    summary: 'A Merkúr látszólagos hátráló mozgását az asztrológia gyakran az átgondolás és az egyeztetések témájával társítja.',
+    experience: 'Hasznos lehet visszatérni félbehagyott feladatokhoz, újraolvasni üzeneteket és pontosítani, ki mit értett egy megbeszélésen. Ez nem jelenti azt, hogy biztosan technikai vagy kommunikációs probléma történik.',
+    watch: 'Ellenőrizd a dátumokat, címzetteket és foglalásokat; fontos megállapodásokat foglalj írásba, és készíts biztonsági mentést a fontos fájlokról.'
+  };
+  if (/vénusz|venus/.test(text) && /hátráló|retrograde|retrográd/.test(text)) return {
+    summary: 'A Vénusz hátráló mozgását az asztrológiai értelmezések a kapcsolatok, az értékek és a pénzügyi szokások újragondolásához kötik.',
+    experience: 'Előtérbe kerülhet, hogy mi fontos neked egy kapcsolatban, vagy mire költesz szívesen. Ez jó alkalom lehet a saját igényeid tisztázására, de nem előrejelzés egy konkrét kapcsolati eseményre.',
+    watch: 'Nagyobb vásárlás előtt adj időt a mérlegelésre, és beszélj egyértelműen a határaidról és elvárásaidról.'
+  };
+  if (/hátráló mozgás vége|retrograde end|stations direct|előrehaladó mozgás/.test(text)) return {
+    summary: 'Egy bolygó látszólagos hátráló szakaszának vége az asztrológiai hagyományban az újraértékelés utáni továbblépést jelképezi.',
+    experience: 'Az elmúlt hetekben átgondolt ügyekben könnyebb lehet rendszerezni a tanulságokat és kijelölni a következő lépést. A változás nem feltétlenül érzékelhető azonnal.',
+    watch: 'Haladj fokozatosan, ellenőrizd a korábbi terveket, és csak a rendelkezésre álló információk alapján köteleződj el.'
+  };
+  if (/hátráló mozgásba kezd|retrograde start|stations retrograde/.test(text)) return {
+    summary: 'A látszólagos hátráló mozgás kezdetét az asztrológia az adott bolygó témáinak felülvizsgálatával társítja.',
+    experience: 'A szimbolikus értelmezés szerint érdemes lassítani, visszanézni a folyamatban lévő ügyekre, és észrevenni, mi igényel pontosítást.',
+    watch: 'Ne tekintsd ezt rossz esemény biztos jelének. Tartsd karban a terveidet, kérdezz vissza, és hagyj mozgásteret a változtatásokra.'
+  };
+  if (/időszaka kezdődik|season start|belép a .* jegyébe|enters/.test(text)) return {
+    summary: 'A Nap vagy egy bolygó jegyváltása az asztrológiában egy új témakör szimbolikus kezdetét jelzi.',
+    experience: 'Az adott jegyhez társított témákat használhatod önismereti kérdésként: mi az, amire most több figyelmet szeretnél fordítani? Ez nem jelenti azt, hogy a napod eseményeit a bolygóállás határozza meg.',
+    watch: 'Válassz egy konkrét, hétköznapi célt, és figyeld meg, mi segít megvalósítani. Ne hozz döntést pusztán az asztrológiai dátum alapján.'
+  };
+  if (/mars|jupiter|szaturnusz|uránusz|neptunusz|plútó/.test(text)) return {
+    summary: 'Ez az égi esemény az asztrológiai hagyomány szerint egy bolygóhoz kötött témát emelhet ki.',
+    experience: 'A pontos értelmezés az esemény típusától és a teljes képlettől függ. Érdemes ezt inkább gondolatébresztőként használni, nem személyre szabott jóslatként.',
+    watch: 'A hétköznapi teendőidet, döntéseidet és kapcsolataidat a tényleges körülmények alapján kezeld.'
+  };
+  return {
+    summary: 'Az esemény egy asztrológiai megfigyelési pont, amelyet önreflexióra használhatsz.',
+    experience: 'Gondold át, kapcsolódik-e most az életedhez az esemény témája. Ha nem, nincs teendőd vele; nem szükséges különleges hatást várnod.',
+    watch: 'Az asztrológia nem tudományosan igazolt előrejelzési módszer. Fontos döntéseknél támaszkodj ellenőrizhető információkra és saját mérlegelésedre.'
+  };
+}
 function renderEvents(data) {
   const events = Array.isArray(data) ? data : (data.events || []);
   skyEvents.replaceChildren();
@@ -350,9 +398,32 @@ function renderEvents(data) {
     date.textContent = eventDate(event.date || event.datetime || event.start);
     const title = document.createElement('h3');
     title.textContent = translateEventText(event.headline || event.title || event.name || event.kind || 'Égi esemény');
+    const rawDescription = event.short || event.description || event.long || '';
+    const translatedDescription = translateEventText(rawDescription);
+    const guidance = getEventGuidance(title.textContent, event.kind || '', rawDescription);
     const description = document.createElement('p');
-    description.textContent = translateEventText(event.short || event.description || event.long || 'Részletek az esemény adatlapján.');
+    description.textContent = translatedDescription === 'Az esemény részletei egyelőre csak angolul érhetők el.'
+      ? guidance.summary
+      : (translatedDescription || guidance.summary);
     card.append(date, title, description);
+    const details = document.createElement('details');
+    details.className = 'event-details';
+    const summary = document.createElement('summary');
+    summary.textContent = 'Mit jelent ez a gyakorlatban?';
+    details.append(summary);
+    for (const [headingText, bodyText] of [
+      ['Hogyan tapasztalhatod meg?', guidance.experience],
+      ['Mire érdemes figyelni?', guidance.watch]
+    ]) {
+      const section = document.createElement('section');
+      const heading = document.createElement('h4');
+      heading.textContent = headingText;
+      const paragraph = document.createElement('p');
+      paragraph.textContent = bodyText;
+      section.append(heading, paragraph);
+      details.append(section);
+    }
+    card.append(details);
     if (event.kind) {
       const kind = document.createElement('span');
       kind.className = 'event-kind';
