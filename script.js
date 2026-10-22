@@ -214,8 +214,8 @@ function renderChartData(data) {
   main.className = 'results-main';
   main.append(
     createResultCard('Nap-jegy', localizedSign(sun?.sign) || (sun?.longitude != null ? longitudePosition(sun.longitude)?.sign : '') || '—', 'sun-card'),
-    createResultCard('Hold-jegy', localizedSign(moon?.sign) || (moon?.longitude != null ? longitudePosition(moon.longitude)?.sign : '') || '—', 'moon-card'),
-    createResultCard('Aszcendens', ascendant ? `${ascendant.glyph} ${ascendant.sign}` : '—', 'asc-card')
+    createResultCard('Aszcendens', ascendant ? `${ascendant.glyph} ${ascendant.sign}` : '—', 'asc-card'),
+    createResultCard('Hold-jegy', localizedSign(moon?.sign) || (moon?.longitude != null ? longitudePosition(moon.longitude)?.sign : '') || '—', 'moon-card')
   );
   chartResults.append(main);
 
@@ -223,9 +223,10 @@ function renderChartData(data) {
   positionStrip.className = 'position-strip';
   const ascValue = data.ascendant;
   const mcValue = data.midheaven;
+  // Keep the Ascendant degree directly under the Ascendant sign card (middle column).
   positionStrip.append(
-    createDetailItem('Aszcendens foka', formatPosition(ascValue)),
     createDetailItem('MC – középégpont', formatPosition(mcValue)),
+    createDetailItem('Aszcendens foka', formatPosition(ascValue)),
     createDetailItem('Házrendszer', data.houseSystem === 'Placidus' ? 'Placidus' : (data.houseSystem || '—'))
   );
   chartResults.append(positionStrip);
