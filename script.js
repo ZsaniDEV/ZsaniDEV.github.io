@@ -293,7 +293,7 @@ form.addEventListener('submit', async event => {
   const place = String(values.get('birthPlace') || '').trim();
   if (!date || !place) return;
   // Strictly accept ISO calendar dates with a four-digit year.
-  const dateMatch = date.match(/^(\\d{4})-(\\d{2})-(\\d{2})$/);
+  const dateMatch = date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (!dateMatch) {
     setStatus(chartStatus, 'A születési évszámot pontosan 4 számjeggyel add meg.', true);
     form.elements.birthDate.focus();
