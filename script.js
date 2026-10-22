@@ -338,49 +338,49 @@ function eventDate(value) {
 function getEventGuidance(title, kind, rawDescription) {
   const text = `${title} ${kind || ''} ${rawDescription || ''}`.toLowerCase();
   if (/újhold|new moon/.test(text)) return {
-    summary: 'Az újhold az asztrológiában a lezárás és az új szándékok kijelölésének jelképe.',
-    experience: 'Lehet, hogy jobban esik csendben átgondolni, mit szeretnél elengedni, illetve minek adnál teret a következő hetekben. Ez inkább önreflexiós keret, nem biztosan bekövetkező hatás.',
-    watch: 'Szánj időt a tervezésre, de ne érezz nyomást arra, hogy mindent azonnal elkezdj. Nagy döntést a saját tényeid és körülményeid alapján hozz.'
+    summary: 'Az újhold az asztrológiában az újrakezdés, a szándékok kijelölése és a következő időszak megtervezése köré irányítja a figyelmet.',
+    experience: 'Nagyobb kedvet érezhetsz ahhoz, hogy tiszta lappal indulj, új célt tűzz ki, vagy változtass egy megszokott rutinon. Könnyebb lehet felismerni, melyik irány vonz igazán, és mi az, amit már nem szeretnél továbbvinni.',
+    watch: 'Válassz ki egy-két reális célt, és bontsd őket konkrét lépésekre. Az ötletek mellé készíts ütemtervet is, hogy a lendületből kézzelfogható eredmény szülessen.'
   };
   if (/telihold|full moon/.test(text)) return {
-    summary: 'A telihold az asztrológiai hagyományban a tetőponttal és a felismerésekkel kapcsolódik össze.',
-    experience: 'Érdemes észrevenni, mi került mostanában a figyelmed középpontjába, és mely ügyek jutottak döntési ponthoz. Az erősebb érzelmek nem törvényszerűek, és nem mindenki éli meg ugyanúgy.',
-    watch: 'Ha feszültnek érzed magad, tarts szünetet, ellenőrizd a feltételezéseidet, és halaszd el az impulzív reakciót. Figyelj a pihenésre.'
+    summary: 'A telihold az asztrológiai értelmezésben a kiteljesedés, a felismerések és a lezárás témáit erősíti.',
+    experience: 'Élesebben láthatod egy folyamat eredményét, egy kapcsolat dinamikáját vagy egy régóta húzódó kérdés lényegét. Az érzelmi reakciók is intenzívebbnek tűnhetnek, ezért könnyebben felismerheted, mi fontos számodra.',
+    watch: 'Használd ki a tisztábban látható helyzeteket az összegzésre és a nyílt beszélgetésekre. Feszültség esetén adj időt magadnak, mielőtt reagálsz vagy végleges döntést hozol.'
   };
   if (/merkúr|mercury/.test(text) && /hátráló|retrograde|retrográd/.test(text)) return {
-    summary: 'A Merkúr látszólagos hátráló mozgását az asztrológia gyakran az átgondolás és az egyeztetések témájával társítja.',
-    experience: 'Hasznos lehet visszatérni félbehagyott feladatokhoz, újraolvasni üzeneteket és pontosítani, ki mit értett egy megbeszélésen. Ez nem jelenti azt, hogy biztosan technikai vagy kommunikációs probléma történik.',
-    watch: 'Ellenőrizd a dátumokat, címzetteket és foglalásokat; fontos megállapodásokat foglalj írásba, és készíts biztonsági mentést a fontos fájlokról.'
+    summary: 'A Merkúr látszólagos hátráló mozgásának időszakában az asztrológia szerint nagyobb hangsúlyt kaphat az újragondolás, az egyeztetés és a részletek ellenőrzése.',
+    experience: 'Visszatérhetnek korábban félretett ügyek, régi beszélgetések vagy befejezetlen feladatok. Feltűnhetnek olyan részletek, amelyeket elsőre könnyű volt átsiklani, és hasznosabbá válhat a lassabb, alaposabb ügyintézés.',
+    watch: 'Olvasd át a fontos üzeneteket, ellenőrizd a dátumokat, címzetteket és foglalásokat, a megállapodásokat pedig foglald írásba. Technikai teendőknél mentsd el a fontos fájlokat, és hagyj időt az esetleges javításokra.'
   };
   if (/vénusz|venus/.test(text) && /hátráló|retrograde|retrográd/.test(text)) return {
-    summary: 'A Vénusz hátráló mozgását az asztrológiai értelmezések a kapcsolatok, az értékek és a pénzügyi szokások újragondolásához kötik.',
-    experience: 'Előtérbe kerülhet, hogy mi fontos neked egy kapcsolatban, vagy mire költesz szívesen. Ez jó alkalom lehet a saját igényeid tisztázására, de nem előrejelzés egy konkrét kapcsolati eseményre.',
-    watch: 'Nagyobb vásárlás előtt adj időt a mérlegelésre, és beszélj egyértelműen a határaidról és elvárásaidról.'
+    summary: 'A Vénusz hátráló mozgását az asztrológia a kapcsolatok, az önértékelés, az ízlés és a pénzügyi szokások újragondolásával kapcsolja össze.',
+    experience: 'Tisztábban láthatod, mely kapcsolatok és értékek fontosak neked, hol van szükség kölcsönösségre, illetve mely kiadások tükrözik valóban a prioritásaidat. Régi ismeretségek vagy korábbi érzelmi témák is újra figyelmet kaphatnak.',
+    watch: 'Beszélj egyértelműen az igényeidről és a határaidról. Nagyobb vásárlás vagy elköteleződés előtt nézd át a költségeket, és adj magadnak időt annak eldöntésére, hogy a választás hosszabb távon is megfelelő-e.'
   };
   if (/hátráló mozgás vége|retrograde end|stations direct|előrehaladó mozgás/.test(text)) return {
-    summary: 'Egy bolygó látszólagos hátráló szakaszának vége az asztrológiai hagyományban az újraértékelés utáni továbblépést jelképezi.',
-    experience: 'Az elmúlt hetekben átgondolt ügyekben könnyebb lehet rendszerezni a tanulságokat és kijelölni a következő lépést. A változás nem feltétlenül érzékelhető azonnal.',
-    watch: 'Haladj fokozatosan, ellenőrizd a korábbi terveket, és csak a rendelkezésre álló információk alapján köteleződj el.'
+    summary: 'A látszólagos hátráló szakasz vége az asztrológiai értelmezésben a tisztázás, a tanulságok összegzése és a fokozatos továbblépés időszaka.',
+    experience: 'Könnyebb lehet rendszerezni az elmúlt hetek tapasztalatait, lezárni a függőben maradt egyeztetéseket, és újra lendületet adni egy korábban elakadt tervnek. A korábban felülvizsgált döntések most konkrét következő lépésekké állhatnak össze.',
+    watch: 'Vedd elő a félretett terveket, ellenőrizd, mi változott, és állíts fel új prioritásokat. Haladj lépésenként, és a friss információk alapján véglegesítsd a döntéseidet.'
   };
   if (/hátráló mozgásba kezd|retrograde start|stations retrograde/.test(text)) return {
-    summary: 'A látszólagos hátráló mozgás kezdetét az asztrológia az adott bolygó témáinak felülvizsgálatával társítja.',
-    experience: 'A szimbolikus értelmezés szerint érdemes lassítani, visszanézni a folyamatban lévő ügyekre, és észrevenni, mi igényel pontosítást.',
-    watch: 'Ne tekintsd ezt rossz esemény biztos jelének. Tartsd karban a terveidet, kérdezz vissza, és hagyj mozgásteret a változtatásokra.'
+    summary: 'A látszólagos hátráló mozgás kezdetét az asztrológia az adott bolygó témáinak felülvizsgálatával és a részletekre irányuló figyelemmel társítja.',
+    experience: 'Az adott területen több alkalom adódhat arra, hogy visszatérj egy korábbi döntéshez, újraellenőrizz egy folyamatot, vagy más szemszögből nézz rá egy kérdésre. A gyors előrelépés helyett az átgondolás és a finomhangolás kerülhet előtérbe.',
+    watch: 'Hagyj időt az ellenőrzésre, kérdezz vissza, ha valami nem egyértelmű, és ne zsúfold túl a napirendedet. A felülvizsgálatot használd a terv pontosítására, ne okként arra, hogy minden döntést elhalassz.'
   };
   if (/időszaka kezdődik|season start|belép a .* jegyébe|enters/.test(text)) return {
-    summary: 'A Nap vagy egy bolygó jegyváltása az asztrológiában egy új témakör szimbolikus kezdetét jelzi.',
-    experience: 'Az adott jegyhez társított témákat használhatod önismereti kérdésként: mi az, amire most több figyelmet szeretnél fordítani? Ez nem jelenti azt, hogy a napod eseményeit a bolygóállás határozza meg.',
-    watch: 'Válassz egy konkrét, hétköznapi célt, és figyeld meg, mi segít megvalósítani. Ne hozz döntést pusztán az asztrológiai dátum alapján.'
+    summary: 'A Nap vagy egy bolygó jegyváltása az asztrológiában egy új témakör kezdetét jelképezi, amelyre a következő időszakban nagyobb figyelem irányulhat.',
+    experience: 'Erősebben foglalkoztathatnak az adott jegyhez társított témák, például a kezdeményezés, a kapcsolódás, a rendszerezés vagy a hosszabb távú célok. Jó alkalom lehet arra, hogy tudatosan kiválassz egy területet, amelyben fejlődni szeretnél.',
+    watch: 'Fordítsd a figyelmet egy konkrét, megvalósítható célra, és tervezz hozzá rendszeres lépéseket. Figyeld meg, milyen lehetőségek jelennek meg, de a döntéseidet a saját körülményeidhez igazítsd.'
   };
   if (/mars|jupiter|szaturnusz|uránusz|neptunusz|plútó/.test(text)) return {
-    summary: 'Ez az égi esemény az asztrológiai hagyomány szerint egy bolygóhoz kötött témát emelhet ki.',
-    experience: 'A pontos értelmezés az esemény típusától és a teljes képlettől függ. Érdemes ezt inkább gondolatébresztőként használni, nem személyre szabott jóslatként.',
-    watch: 'A hétköznapi teendőidet, döntéseidet és kapcsolataidat a tényleges körülmények alapján kezeld.'
+    summary: 'Ez a bolygóesemény az asztrológiai hagyomány szerint az adott bolygóhoz társított életterületekre irányítja a figyelmet.',
+    experience: 'A bolygó és az esemény típusa alapján előtérbe kerülhet a kezdeményezés, a növekedés, a felelősség, a változtatás vagy a hosszabb távú tervezés témája. Figyeld meg, melyik kapcsolódik leginkább a jelenlegi helyzetedhez.',
+    watch: 'Gondold át, hol érdemes tudatosabban cselekedned, és hol hasznosabb türelmesen építkezned. A gyakorlati lehetőségeket és korlátokat is mérlegeld, mielőtt változtatsz.'
   };
   return {
-    summary: 'Az esemény egy asztrológiai megfigyelési pont, amelyet önreflexióra használhatsz.',
-    experience: 'Gondold át, kapcsolódik-e most az életedhez az esemény témája. Ha nem, nincs teendőd vele; nem szükséges különleges hatást várnod.',
-    watch: 'Az asztrológia nem tudományosan igazolt előrejelzési módszer. Fontos döntéseknél támaszkodj ellenőrizhető információkra és saját mérlegelésedre.'
+    summary: 'Ez az égi esemény az asztrológiai értelmezés szerint egy téma tudatosabb megfigyelésére adhat alkalmat.',
+    experience: 'Érdemes észrevenni, milyen gondolatok, döntések vagy visszatérő helyzetek kerülnek előtérbe az esemény körüli napokban. A megfigyelések segíthetnek tisztábban látni, mi igényel figyelmet, és mi működik jól.',
+    watch: 'Jegyezd fel a fontos felismeréseket, majd fordítsd őket konkrét, megvalósítható lépésekre. Az asztrológiai értelmezést kezeld önismereti keretként, és vedd figyelembe a tényleges körülményeket is.'
   };
 }
 function renderEvents(data) {
