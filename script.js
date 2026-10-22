@@ -363,12 +363,12 @@ function renderEvents(data) {
 }
 async function loadEvents() {
   try {
-    const response = await fetch(`${API}/events/upcoming?days=45&min_importance=35`);
-    if (!response.ok) throw new Error('Az égi események most nem érhetők el.');
+    const response = await fetch('/.netlify/functions/events?days=45&min_importance=35');
+    if (!response.ok) throw new Error(`Az égi események nem érhetők el (HTTP ${response.status}).`);
     renderEvents(await response.json());
-  } catch {
+  } catch (error) {
     skyEvents.replaceChildren();
-    setStatus(skyStatus, 'Az aktuális események most nem tölthetők be. Kérjük, próbáld újra később.', true);
+    setStatus(skyStatus, error.message || 'Az aktuális események most nem tölthetők be. Kérjük, próbáld újra később.', true);
   }
 }
 loadEvents();
