@@ -292,7 +292,23 @@ form.addEventListener('submit', async event => {
   const time = String(values.get('birthTime') || '12:00');
   const place = String(values.get('birthPlace') || '').trim();
   if (!date || !place) return;
-  const [year, month, day] = date.split('-').map(Number);
+  // Strictly accept ISO calendar dates with a four-digit year.
+  const dateMatch = date.match(/^(\\d{4})-(\\d{2})-(\\d{2})$/);
+  if (!dateMatch) {
+    setStatus(chartStatus, 'A születési évszámot pontosan 4 számjeggyel add meg.', true);
+    form.elements.birthDate.focus();
+    return;
+  }
+  const [, yearText, monthText, dayText] = dateMatch;
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const checkedDate = new Date(year, month - 1, day);
+  if (checkedDate.getFullYear() !== year || checkedDate.getMonth() !== month - 1 || checkedDate.getDate() !== day) {
+    setStatus(chartStatus, 'Érvényes születési dátumot adj meg.', true);
+    form.elements.birthDate.focus();
+    return;
+  }
   const [hour, minute] = time.split(':').map(Number);
   submitButton.disabled = true;
   chartResults.hidden = true;
