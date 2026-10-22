@@ -221,12 +221,10 @@ function renderChartData(data) {
 
   const positionStrip = document.createElement('div');
   positionStrip.className = 'position-strip';
-  const ascValue = data.ascendant;
-  const mcValue = data.midheaven;
-  // Keep the Ascendant degree directly under the Ascendant sign card (middle column).
+  const mcPosition = longitudePosition(data.midheaven);
   positionStrip.append(
-    createDetailItem('MC – középégpont', formatPosition(mcValue)),
-    createDetailItem('Aszcendens foka', formatPosition(ascValue)),
+    createDetailItem('MC – középégpont', mcPosition ? `${mcPosition.glyph} ${mcPosition.sign}` : 'Részletes adat a prémium elemzésben'),
+    createDetailItem('Pontos fokadatok', 'Prémium elemzésben'),
     createDetailItem('Házrendszer', data.houseSystem === 'Placidus' ? 'Placidus' : (data.houseSystem || '—'))
   );
   chartResults.append(positionStrip);
@@ -244,8 +242,7 @@ function renderChartData(data) {
       const label = document.createElement('h4');
       label.textContent = prettyPlanetName(key);
       const sign = localizedSign(details.sign) || (details.longitude != null ? longitudePosition(details.longitude)?.sign : '');
-      const degree = Number(details.degInSign);
-      const position = sign && Number.isFinite(degree) ? `${sign} · ${Math.floor(degree)}°${String(Math.round((degree % 1) * 60) % 60).padStart(2, '0')}′` : (details.longitude != null ? formatPosition(details.longitude) : (sign || 'Pozíció elérhető'));
+      const position = sign || (details.longitude != null ? (longitudePosition(details.longitude)?.sign || 'Pozíció elérhető') : 'Pozíció elérhető');
       const value = document.createElement('strong');
       value.textContent = position;
       const meta = document.createElement('p');
@@ -281,6 +278,33 @@ function renderChartData(data) {
     disclosure.content.append(grid);
     chartResults.append(disclosure.details);
   }
+  const premiumPanel = document.createElement('section');
+  premiumPanel.className = 'premium-preview';
+  const premiumEyebrow = document.createElement('p');
+  premiumEyebrow.className = 'eyebrow';
+  premiumEyebrow.textContent = 'PRÉMIUM · TELJES ÉLETÚT-ELEMZÉS';
+  const premiumTitle = document.createElement('h3');
+  premiumTitle.textContent = 'A képleted mélyebb összefüggései';
+  const premiumDescription = document.createElement('p');
+  premiumDescription.textContent = 'A részletes pszichológiai szemléletű értelmezés a személyiség, a családi minták, a párkapcsolatok, a hivatás és a hosszú távú fejlődési témák lehetséges összefüggéseit vizsgálja. A gyerekkori eseményeket a képlet nem tudja tényként azonosítani; az elemzés önismereti kérdésekkel segít összevetni a szimbolikus mintákat a saját tapasztalataiddal.';
+  const premiumList = document.createElement('ul');
+  for (const itemText of [
+    'Bolygók pontos fokai, házhelyzetei és fényszögei',
+    'Személyiség és érzelmi szükségletek mélyebb összefüggései',
+    'Családi és párkapcsolati minták önismereti megközelítésben',
+    'Hivatás, anyagi biztonság és életút témái',
+    'Személyre szabott reflexiós kérdések és gyakorlati útmutató'
+  ]) {
+    const item = document.createElement('li');
+    item.textContent = itemText;
+    premiumList.append(item);
+  }
+  const premiumStatus = document.createElement('p');
+  premiumStatus.className = 'premium-status';
+  premiumStatus.textContent = 'A prémium értelmezés későbbi fizetős szolgáltatásként lesz elérhető.';
+  premiumPanel.append(premiumEyebrow, premiumTitle, premiumDescription, premiumList, premiumStatus);
+  chartResults.append(premiumPanel);
+
   const footer = document.createElement('p');
   footer.className = 'results-footnote';
   footer.textContent = 'Az asztrológia szimbolikus értelmezési rendszer. A fokértékek az ekliptikai hosszúságból átszámítva, jegyen belüli fokként jelennek meg.';
