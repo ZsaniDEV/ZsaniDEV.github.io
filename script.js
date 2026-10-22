@@ -329,11 +329,24 @@ form.addEventListener('submit', async event => {
     submitButton.disabled = false;
   }
 });
+function parseEventDate(value) {
+  if (!value) return null;
+  // Treat date-only API values as calendar dates, not UTC instants.
+  const raw = String(value).trim();
+  const dateOnly = raw.match(/^(\\d{4})-(\\d{2})-(\\d{2})$/);
+  const date = dateOnly
+    ? new Date(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]))
+    : new Date(raw);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+function localDateKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
 function eventDate(value) {
   if (!value) return 'Dátum nélkül';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat('hu-HU', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }).format(date);
+  const date = parseEventDate(value);
+  if (!date) return String(value);
+  return new Intl.DateTimeFormat('hu-HU', { year: 'numeric', month: 'short', day: 'numeric' }).format(date);
 }
 function getEventGuidance(title, kind, rawDescription) {
   const text = `${title} ${kind || ''} ${rawDescription || ''}`.toLowerCase();
@@ -383,65 +396,121 @@ function getEventGuidance(title, kind, rawDescription) {
     watch: 'Jegyezd fel a felismeréseidet, majd válaszd ki azt az egy lépést, amely a legtöbbet segít a továbblépésben. Maradj figyelmes a lehetőségekre, és igazítsd a döntéseidet a tényleges körülményeidhez.'
   };
 }
+function createEventCard(event, isToday = false) {
+  const card = document.createElement('article');
+  card.className = 'event-card';
+  const dateValue = event.date || event.datetime || event.start;
+  const date = document.createElement('div');
+  date.className = 'event-date';
+  date.textContent = isToday ? `Ma · ${eventDate(dateValue)}` : eventDate(dateValue);
+  const title = document.createElement('h3');
+  title.textContent = translateEventText(event.headline || event.title || event.name || event.kind || 'Égi esemény');
+  const rawDescription = event.short || event.description || event.long || '';
+  const translatedDescription = translateEventText(rawDescription);
+  const guidance = getEventGuidance(title.textContent, event.kind || '', rawDescription);
+  const description = document.createElement('p');
+  description.textContent = translatedDescription === 'Az esemény részletei egyelőre csak angolul érhetők el.'
+    ? guidance.summary
+    : (translatedDescription || guidance.summary);
+  card.append(date, title, description);
+  const details = document.createElement('details');
+  details.className = 'event-details';
+  const summary = document.createElement('summary');
+  summary.textContent = 'Mit jelent ez a gyakorlatban?';
+  details.append(summary);
+  for (const [headingText, bodyText] of [
+    ['Hogyan tapasztalhatod meg?', guidance.experience],
+    ['Mire érdemes figyelni?', guidance.watch]
+  ]) {
+    const section = document.createElement('section');
+    const heading = document.createElement('h4');
+    heading.textContent = headingText;
+    const paragraph = document.createElement('p');
+    paragraph.textContent = bodyText;
+    section.append(heading, paragraph);
+    details.append(section);
+  }
+  card.append(details);
+  if (event.kind) {
+    const kind = document.createElement('span');
+    kind.className = 'event-kind';
+    kind.textContent = translateEventText(event.kind);
+    card.append(kind);
+  }
+  return card;
+}
+function appendEventSection(titleText, events, isToday = false) {
+  if (!events.length) return;
+  const section = document.createElement('section');
+  section.className = 'event-list-section';
+  const heading = document.createElement('h3');
+  heading.className = 'event-list-heading';
+  heading.textContent = titleText;
+  section.append(heading);
+  const grid = document.createElement('div');
+  grid.className = 'event-grid';
+  for (const event of events) grid.append(createEventCard(event, isToday));
+  section.append(grid);
+  skyEvents.append(section);
+}
 function renderEvents(data) {
   const events = Array.isArray(data) ? data : (data.events || []);
   skyEvents.replaceChildren();
-  if (!events.length) {
-    setStatus(skyStatus, 'Jelenleg nincs megjeleníthető esemény ebben az időszakban.');
-    return;
+  const todayKey = localDateKey(new Date());
+  const datedEvents = events.map(event => {
+    const value = event.date || event.datetime || event.start;
+    const date = parseEventDate(value);
+    return { event, date, key: date ? localDateKey(date) : null };
+  }).sort((a, b) => (a.date?.getTime() ?? Infinity) - (b.date?.getTime() ?? Infinity));
+  const todaysEvents = datedEvents.filter(item => item.key === todayKey).map(item => item.event);
+  const upcomingEvents = datedEvents.filter(item => item.key && item.key > todayKey).map(item => item.event).slice(0, 9);
+  appendEventSection('Mai égi események', todaysEvents, true);
+  appendEventSection('Közelgő események', upcomingEvents);
+  if (!todaysEvents.length) {
+    const note = document.createElement('p');
+    note.className = 'today-empty-note';
+    note.textContent = 'Ma nincs kiemelt égi esemény. A következő napok eseményeit lent találod.';
+    skyEvents.prepend(note);
   }
-  for (const event of events.slice(0, 9)) {
-    const card = document.createElement('article');
-    card.className = 'event-card';
-    const date = document.createElement('div');
-    date.className = 'event-date';
-    date.textContent = eventDate(event.date || event.datetime || event.start);
-    const title = document.createElement('h3');
-    title.textContent = translateEventText(event.headline || event.title || event.name || event.kind || 'Égi esemény');
-    const rawDescription = event.short || event.description || event.long || '';
-    const translatedDescription = translateEventText(rawDescription);
-    const guidance = getEventGuidance(title.textContent, event.kind || '', rawDescription);
-    const description = document.createElement('p');
-    description.textContent = translatedDescription === 'Az esemény részletei egyelőre csak angolul érhetők el.'
-      ? guidance.summary
-      : (translatedDescription || guidance.summary);
-    card.append(date, title, description);
-    const details = document.createElement('details');
-    details.className = 'event-details';
-    const summary = document.createElement('summary');
-    summary.textContent = 'Mit jelent ez a gyakorlatban?';
-    details.append(summary);
-    for (const [headingText, bodyText] of [
-      ['Hogyan tapasztalhatod meg?', guidance.experience],
-      ['Mire érdemes figyelni?', guidance.watch]
-    ]) {
-      const section = document.createElement('section');
-      const heading = document.createElement('h4');
-      heading.textContent = headingText;
-      const paragraph = document.createElement('p');
-      paragraph.textContent = bodyText;
-      section.append(heading, paragraph);
-      details.append(section);
-    }
-    card.append(details);
-    if (event.kind) {
-      const kind = document.createElement('span');
-      kind.className = 'event-kind';
-      kind.textContent = translateEventText(event.kind);
-      card.append(kind);
-    }
-    skyEvents.append(card);
+  if (!todaysEvents.length && !upcomingEvents.length) {
+    const note = document.createElement('p');
+    note.className = 'today-empty-note';
+    note.textContent = 'Most nincs megjeleníthető esemény ebben az időszakban.';
+    skyEvents.replaceChildren(note);
   }
-  setStatus(skyStatus, 'Az eseményadatok forrása a CosmyDay. Az időpontok helyi megjelenítését a következő körben tovább pontosítjuk.');
+  const updatedAt = new Intl.DateTimeFormat('hu-HU', { hour: '2-digit', minute: '2-digit' }).format(new Date());
+  setStatus(skyStatus, `Frissítve ma ${updatedAt}-kor · Forrás: CosmyDay. Az oldal megnyitásakor és visszatéréskor frissül.`);
 }
+let lastEventsFetch = 0;
+let eventsRequestInProgress = false;
 async function loadEvents() {
+  if (eventsRequestInProgress) return;
+  eventsRequestInProgress = true;
   try {
     const response = await fetch('/.netlify/functions/events?days=45&min_importance=35');
     if (!response.ok) throw new Error(`Az égi események nem érhetők el (HTTP ${response.status}).`);
     renderEvents(await response.json());
+    lastEventsFetch = Date.now();
   } catch (error) {
     skyEvents.replaceChildren();
     setStatus(skyStatus, error.message || 'Az aktuális események most nem tölthetők be. Kérjük, próbáld újra később.', true);
+  } finally {
+    eventsRequestInProgress = false;
   }
 }
+function scheduleMidnightRefresh() {
+  const now = new Date();
+  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 1, 0, 0);
+  window.setTimeout(async () => {
+    await loadEvents();
+    scheduleMidnightRefresh();
+  }, Math.max(1000, midnight.getTime() - now.getTime()));
+}
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && Date.now() - lastEventsFetch > 15 * 60 * 1000) loadEvents();
+});
+window.addEventListener('focus', () => {
+  if (Date.now() - lastEventsFetch > 15 * 60 * 1000) loadEvents();
+});
 loadEvents();
+scheduleMidnightRefresh();
