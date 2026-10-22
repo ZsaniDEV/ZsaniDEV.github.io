@@ -32,3 +32,13 @@ footer{max-width:1120px;margin:20px auto 0;padding:28px;display:flex;flex-wrap:w
 .event-list-section .event-grid{grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch}
 .event-list-section .event-card{min-width:0;overflow-wrap:anywhere}
 @media(max-width:760px){.event-list-section .event-grid{grid-template-columns:1fr}}
+
+
+/* Premium full-life interpretation preview */
+.premium-preview{margin:28px 0 18px;padding:24px;border:1px solid rgba(216,187,131,.35);border-radius:18px;background:linear-gradient(145deg,rgba(38,48,78,.7),rgba(17,25,45,.82))}
+.premium-preview .eyebrow{margin-bottom:10px}
+.premium-preview h3{margin:0 0 12px;font-size:clamp(1.25rem,3vw,1.7rem);letter-spacing:-.025em}
+.premium-preview>p:not(.eyebrow):not(.premium-status){max-width:780px;color:var(--muted);line-height:1.7;font-size:.9rem}
+.premium-preview ul{padding-left:20px;color:#d9deea;line-height:1.8;font-size:.9rem}
+.premium-preview li{padding-left:3px;margin:3px 0}
+.premium-status{margin:18px 0 0;padding-top:14px;border-top:1px solid var(--line);color:var(--gold);font-size:.86rem;font-weight:650;line-height:1.6}
