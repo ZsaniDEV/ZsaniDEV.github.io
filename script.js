@@ -29,13 +29,45 @@ const EVENT_TRANSLATIONS = {
 function translateEventText(value) {
   const original = String(value ?? '').trim();
   if (!original) return '';
-  const normalized = original.toLowerCase().replaceAll('_', ' ').replace(/[-]+/g, ' ').replace(/\s+/g, ' ').trim();
+  const normalized = original.toLowerCase().replaceAll('_', ' ').replace(/[-]+/g, ' ').replace(/\\s+/g, ' ').trim();
   if (EVENT_TRANSLATIONS[normalized]) return EVENT_TRANSLATIONS[normalized];
-  let result = normalized;
-  for (const [english, hungarian] of Object.entries(EVENT_TRANSLATIONS).sort((a, b) => b[0].length - a[0].length)) {
-    result = result.replaceAll(english, hungarian.toLowerCase());
+
+  const signNames = {
+    aries:'Kos', taurus:'Bika', gemini:'Ikrek', cancer:'Rák', leo:'Oroszlán',
+    virgo:'Szűz', libra:'Mérleg', scorpio:'Skorpió', sagittarius:'Nyilas',
+    capricorn:'Bak', aquarius:'Vízöntő', pisces:'Halak'
+  };
+  const sign = (name) => signNames[String(name || '').toLowerCase()] || name;
+  let match = original.match(/^(.+?) season begins$/i);
+  if (match) return `A ${sign(match[1])} időszaka kezdődik`;
+  match = original.match(/^(New Moon|Full Moon) in (.+)$/i);
+  if (match) return `${/^new/i.test(match[1]) ? 'Újhold' : 'Telihold'} a ${sign(match[2])} jegyében`;
+  match = original.match(/^(Mercury|Venus|Mars|Jupiter|Saturn|Uranus|Neptune|Pluto) (?:goes|turns) retrograde$/i);
+  if (match) return `A ${prettyPlanetName(match[1])} látszólagos hátráló mozgásba kezd`;
+  match = original.match(/^(Mercury|Venus|Mars|Jupiter|Saturn|Uranus|Neptune|Pluto) turns direct$/i);
+  if (match) return `A ${prettyPlanetName(match[1])} látszólagos hátráló mozgása véget ér`;
+  match = original.match(/^(Mercury|Venus|Mars|Jupiter|Saturn|Uranus|Neptune|Pluto) enters (.+)$/i);
+  if (match) return `A ${prettyPlanetName(match[1])} belép a ${sign(match[2])} jegyébe`;
+
+  let result = original;
+  const replacements = [
+    [/The sun enters (\w+) at ([\d:]+\s*[ap]m) on ([A-Za-z]+ \d{1,2}, \d{4}), running until ([A-Za-z]+ \d{1,2}, \d{4})\./i,
+      (_, s, time, date, until) => `A Nap ${date}-án/-én ${time}-kor belép a ${sign(s)} jegyébe, és ${until}-ig ott tartózkodik.`],
+    [/The (new moon|full moon) reaches ([\d.]+)° (\w+) at ([\d:]+\s*[ap]m) on ([A-Za-z]+ \d{1,2}, \d{4})\./i,
+      (_, phase, degree, s, time, date) => `${/^new/i.test(phase) ? 'Az újhold' : 'A telihold'} ${date}-án/-én ${time}-kor a ${sign(s)} jegy ${degree}. fokánál következik be.`],
+    [/(Mercury|Venus|Mars|Jupiter|Saturn|Uranus|Neptune|Pluto) stations retrograde at ([\d.]+)° (\w+) on ([A-Za-z]+ \d{1,2}, \d{4}), and turns direct again on ([A-Za-z]+ \d{1,2}, \d{4})\./i,
+      (planet, degree, s, date, until) => `A ${prettyPlanetName(planet)} ${date}-án/-én kezdi meg látszólagos hátráló mozgását a ${sign(s)} jegy ${degree}. fokánál. A mozgás ${until}-án/-én ér véget.`],
+    [/(Mercury|Venus|Mars|Jupiter|Saturn|Uranus|Neptune|Pluto) stations direct at ([\d.]+)° (\w+) on ([A-Za-z]+ \d{1,2}, \d{4}), ending the retrograde motion that began ([A-Za-z]+ \d{1,2}, \d{4})\./i,
+      (planet, degree, s, date, began) => `A ${prettyPlanetName(planet)} ${date}-án/-én befejezi látszólagos hátráló mozgását a ${sign(s)} jegy ${degree}. fokánál. A hátrálás ${began}-án/-én kezdődött.`]
+  ];
+  for (const [pattern, formatter] of replacements) {
+    const found = result.match(pattern);
+    if (found) return result.replace(pattern, formatter);
   }
-  return result === normalized ? original.replaceAll('_', ' ') : result.charAt(0).toLocaleUpperCase('hu-HU') + result.slice(1);
+  if (/[A-Za-z]{3,}/.test(original) && /\\b(the|and|on|at|enters|begins|reaches|stations|until|running|ending|again|into|in)\\b/i.test(original)) {
+    return 'Az esemény részletei egyelőre csak angolul érhetők el.';
+  }
+  return original.replaceAll('_', ' ');
 }
 function readableLabel(value) {
   return translateEventText(value);
