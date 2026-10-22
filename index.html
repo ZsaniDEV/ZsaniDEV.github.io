@@ -26,7 +26,7 @@
     <section class="section" id="keplet">
       <div class="section-heading"><p class="eyebrow">01 / SZEMÉLYES KÉPLET</p><h2>Hol álltak a bolygók, amikor megszülettél?</h2><p>Add meg a születési adatokat. A számításhoz a hely koordinátái és a helyi időzóna is szükséges.</p></div>
       <form id="natal-form" class="chart-form">
-        <label>Születési dátum<input name="birthDate" type="date" required></label>
+        <label>Születési dátum<input name="birthDate" type="date" min="0001-01-01" max="9999-12-31" required><span class="field-help">Az évszám pontosan 4 számjegy legyen.</span></label>
         <label>Születési idő<input name="birthTime" type="time" required value="12:00"></label>
         <label class="place-field">Születési város<input name="birthPlace" type="text" placeholder="pl. Szeged, Magyarország" autocomplete="off" required><span class="field-help">A város neve alapján keressük meg a koordinátákat.</span></label>
         <button type="submit" id="chart-submit">Képlet kiszámítása</button>
