@@ -32,7 +32,7 @@ function formatEnglishDate(value) {
   return new Intl.DateTimeFormat('hu-HU', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(date);
 }
 function formatEnglishTime(value) {
-  const match = String(value).match(/(\\d{1,2}):(\\d{2})\\s*(am|pm)/i);
+  const match = String(value).match(/(\d{1,2}):(\d{2})\s*(am|pm)/i);
   if (!match) return value;
   let hour = Number(match[1]) % 12;
   if (match[3].toLowerCase() === 'pm') hour += 12;
@@ -41,7 +41,7 @@ function formatEnglishTime(value) {
 function translateEventText(value) {
   const original = String(value ?? '').trim();
   if (!original) return '';
-  const normalized = original.toLowerCase().replaceAll('_', ' ').replace(/[-]+/g, ' ').replace(/\\s+/g, ' ').trim();
+  const normalized = original.toLowerCase().replaceAll('_', ' ').replace(/[-]+/g, ' ').replace(/\s+/g, ' ').trim();
   if (EVENT_TRANSLATIONS[normalized]) return EVENT_TRANSLATIONS[normalized];
 
   const signNames = {
@@ -76,7 +76,7 @@ function translateEventText(value) {
     const found = result.match(pattern);
     if (found) return result.replace(pattern, formatter);
   }
-  if (/[A-Za-z]{3,}/.test(original) && /\\b(the|and|on|at|enters|begins|reaches|stations|until|running|ending|again|into|in)\\b/i.test(original)) {
+  if (/[A-Za-z]{3,}/.test(original) && /\b(the|and|on|at|enters|begins|reaches|stations|until|running|ending|again|into|in)\b/i.test(original)) {
     return 'Az esemény részletei egyelőre csak angolul érhetők el.';
   }
   return original.replaceAll('_', ' ');
@@ -367,6 +367,7 @@ async function loadEvents() {
     if (!response.ok) throw new Error('Az égi események most nem érhetők el.');
     renderEvents(await response.json());
   } catch {
+    skyEvents.replaceChildren();
     setStatus(skyStatus, 'Az aktuális események most nem tölthetők be. Kérjük, próbáld újra később.', true);
   }
 }
