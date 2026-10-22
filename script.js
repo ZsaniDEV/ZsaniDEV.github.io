@@ -219,6 +219,45 @@ function renderChartData(data) {
   );
   chartResults.append(main);
 
+  const interpretationSection = document.createElement('section');
+  interpretationSection.className = 'result-section personal-interpretation';
+  const interpretationHeading = document.createElement('h3');
+  interpretationHeading.textContent = 'A képleted első összefüggései';
+  const interpretationIntro = document.createElement('p');
+  interpretationIntro.textContent = 'Rövid, szimbolikus kiindulópont a három fő jelölő alapján. Az értelmezés önismereti lehetőség, amelyet a saját tapasztalataiddal érdemes összevetned.';
+  interpretationSection.append(interpretationHeading, interpretationIntro);
+  const signThemes = {
+    'Kos': 'A kezdeményezés, az önálló döntés és a lendület témái kerülhetnek előtérbe. Érdemes megfigyelned, mikor segít a gyors cselekvés, és mikor hasznos egy rövid szünet.',
+    'Bika': 'A biztonság, a kiszámíthatóság és az érzékszervi tapasztalatok kaphatnak hangsúlyt. Figyeld meg, hogyan teremtesz stabilitást, és mennyire tudsz rugalmas maradni a változásokban.',
+    'Ikrek': 'A kíváncsiság, a tanulás és a kommunikáció lehetnek fontos kapaszkodók. Hasznos kérdés, hogyan választod ki a sok információ közül azt, amire valóban figyelmet szeretnél fordítani.',
+    'Rák': 'Az érzelmi biztonság, a kötődés és a gondoskodás témái lehetnek hangsúlyosak. Érdemes megfigyelned, hogyan tudsz másokról gondoskodni úgy, hogy közben a saját igényeidnek is helyet adsz.',
+    'Oroszlán': 'Az önkifejezés, a kreativitás és az elismerés iránti igény kerülhet fókuszba. Gondold át, milyen helyzetekben tudsz természetesen megmutatkozni, és hogyan őrzöd meg az önértékelésed külső visszajelzésektől függetlenül.',
+    'Szűz': 'A rendszerezés, a részletekre figyelés és a hasznosság érzése lehet meghatározó. Figyeld meg, mikor támogat a precizitás, és mikor érdemes elfogadnod, hogy az elég jó megoldás is előrelépés.',
+    'Mérleg': 'A kölcsönösség, a harmónia és a kapcsolati egyensúly kaphat hangsúlyt. Fontos önismereti kérdés lehet, hogyan egyezteted össze a mások szempontjai iránti érzékenységet a saját álláspontod képviseletével.',
+    'Skorpió': 'Az intenzitás, a bizalom és a mélyebb összefüggések megértése lehet fontos téma. Érdemes megfigyelned, hogyan épül nálad a bizalom, és miként tudsz nyitott maradni bizonytalan helyzetekben is.',
+    'Nyilas': 'A tágabb perspektíva, a felfedezés és a személyes meggyőződések kerülhetnek előtérbe. Gondold át, hogyan adsz teret a fejlődésnek, miközben a részleteket és a gyakorlati következményeket is figyelembe veszed.',
+    'Bak': 'A felelősség, a hosszú távú célok és a teljesítmény témái lehetnek hangsúlyosak. Hasznos kérdés, hogyan építesz tartós eredményeket úgy, hogy a pihenésnek és a személyes kapcsolatoknak is maradjon helye.',
+    'Vízöntő': 'Az önálló gondolkodás, az újítás és a közösséghez való viszony lehet fontos kapaszkodó. Figyeld meg, hogyan tudod képviselni az egyediségedet, miközben együttműködsz másokkal.',
+    'Halak': 'A képzelőerő, az együttérzés és a finom benyomások iránti fogékonyság kerülhet előtérbe. Érdemes tudatosan különválasztanod a megérzéseidet a biztos tényektől, és világos határokat kialakítanod.'
+  };
+  const addInterpretation = (label, planet, sign) => {
+    if (!sign) return;
+    const block = document.createElement('div');
+    block.className = 'interpretation-item';
+    const subheading = document.createElement('h4');
+    subheading.textContent = label + ' · ' + sign;
+    const paragraph = document.createElement('p');
+    paragraph.textContent = signThemes[sign] || 'Ez a jelölő egy lehetséges önismereti témát emel ki. A jelentését a képlet többi elemével és a saját tapasztalataiddal együtt érdemes értelmezni.';
+    block.append(subheading, paragraph);
+    interpretationSection.append(block);
+  };
+  const sunSign = localizedSign(sun?.sign) || (sun?.longitude != null ? longitudePosition(sun.longitude)?.sign : '');
+  const moonSign = localizedSign(moon?.sign) || (moon?.longitude != null ? longitudePosition(moon.longitude)?.sign : '');
+  addInterpretation('Nap', sun, sunSign);
+  addInterpretation('Aszcendens', null, ascendant?.sign);
+  addInterpretation('Hold', moon, moonSign);
+  chartResults.append(interpretationSection);
+
   const positionStrip = document.createElement('div');
   positionStrip.className = 'position-strip';
   const mcPosition = longitudePosition(data.midheaven);
