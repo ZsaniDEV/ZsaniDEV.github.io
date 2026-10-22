@@ -68,9 +68,9 @@ function translateEventText(value) {
     [/The (new moon|full moon) reaches ([\d.]+)° (\w+) at ([\d:]+\s*[ap]m)(?:\s+[A-Z]{1,4})? on ([A-Za-z]+ \d{1,2},? \d{4})\.?/i,
       (_, phase, degree, s, time, date) => `${/^new/i.test(phase) ? 'Az újhold' : 'A telihold'} ${formatEnglishDate(date)} napján ${formatEnglishTime(time)}-kor a ${sign(s)} jegy ${degree}. fokánál következik be.`],
     [/(Mercury|Venus|Mars|Jupiter|Saturn|Uranus|Neptune|Pluto) stations retrograde at ([\d.]+)° (\w+) on ([A-Za-z]+ \d{1,2}, \d{4}), and turns direct again on ([A-Za-z]+ \d{1,2}, \d{4})\./i,
-      (planet, degree, s, date, until) => `A ${prettyPlanetName(planet)} ${formatEnglishDate(date)} napján kezdi meg látszólagos hátráló mozgását a ${sign(s)} jegy ${degree}. fokánál. A mozgás ${formatEnglishDate(until)} napján ér véget.`],
+      (_, planet, degree, s, date, until) => `A ${prettyPlanetName(planet)} ${formatEnglishDate(date)} napján kezdi meg látszólagos hátráló mozgását a ${sign(s)} jegy ${degree}. fokánál. A mozgás ${formatEnglishDate(until)} napján ér véget.`],
     [/(Mercury|Venus|Mars|Jupiter|Saturn|Uranus|Neptune|Pluto) stations direct at ([\d.]+)° (\w+) on ([A-Za-z]+ \d{1,2}, \d{4}), ending the retrograde motion that began ([A-Za-z]+ \d{1,2}, \d{4})\./i,
-      (planet, degree, s, date, began) => `A ${prettyPlanetName(planet)} ${formatEnglishDate(date)} napján befejezi látszólagos hátráló mozgását a ${sign(s)} jegy ${degree}. fokánál. A hátrálás ${formatEnglishDate(began)} napján kezdődött.`]
+      (_, planet, degree, s, date, began) => `A ${prettyPlanetName(planet)} ${formatEnglishDate(date)} napján befejezi látszólagos hátráló mozgását a ${sign(s)} jegy ${degree}. fokánál. A hátrálás ${formatEnglishDate(began)} napján kezdődött.`]
   ];
   for (const [pattern, formatter] of replacements) {
     const found = result.match(pattern);
