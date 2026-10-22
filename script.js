@@ -74,7 +74,7 @@ function renderChartData(data) {
       const item = document.createElement('div');
       item.className = 'data-item';
       const label = document.createElement('strong');
-      label.textContent = `\u0000Ház ${index + 1}`.replace('\u0000', '');
+      label.textContent = `Ház ${index + 1}`;
       const text = document.createElement('span');
       text.textContent = `${Number(value).toFixed(4)}°`;
       item.append(label, text);
