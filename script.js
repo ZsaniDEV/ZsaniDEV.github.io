@@ -44,24 +44,77 @@ function renderObjectGrid(title, object) {
 function renderChartData(data) {
   chartResults.replaceChildren();
   chartResults.hidden = false;
+
   const intro = document.createElement('div');
   intro.className = 'result-panel';
   const heading = document.createElement('h3');
   heading.textContent = 'A számítás eredménye';
   const note = document.createElement('p');
   note.className = 'field-help';
-  note.textContent = 'A kapott adatokat az API válasza alapján jelenítjük meg. A következő fejlesztési lépésben ezekből részletes, magyar nyelvű képletértelmezés és horoszkópkerék készülhet.';
+  note.textContent = 'A bolygóállások és a házcsúcsok a CosmyDay számításából származnak. Az értékek fokban szerepelnek, ahol ezt az API megadja.';
   intro.append(heading, note);
   chartResults.append(intro);
-  const preferred = ['planets', 'houses', 'aspects', 'angles', 'points'];
-  let rendered = 0;
-  for (const key of preferred) {
-    if (data[key] && typeof data[key] === 'object') {
-      const panel = renderObjectGrid(readableLabel(key), data[key]);
-      if (panel) { chartResults.append(panel); rendered++; }
-    }
+
+  const summary = {};
+  for (const key of ['houseSystem', 'ascendant', 'midheaven']) {
+    if (data[key] !== undefined && data[key] !== null) summary[key] = data[key];
   }
-  if (!rendered) {
+  const summaryPanel = renderObjectGrid('A képlet fő tengelyei', summary);
+  if (summaryPanel) chartResults.append(summaryPanel);
+
+  if (Array.isArray(data.cusps) && data.cusps.length) {
+    const panel = document.createElement('section');
+    panel.className = 'result-panel';
+    const title = document.createElement('h3');
+    title.textContent = 'Házcsúcsok';
+    panel.append(title);
+    const grid = document.createElement('div');
+    grid.className = 'data-list';
+    data.cusps.forEach((value, index) => {
+      const item = document.createElement('div');
+      item.className = 'data-item';
+      const label = document.createElement('strong');
+      label.textContent = `\u0000Ház ${index + 1}`.replace('\u0000', '');
+      const text = document.createElement('span');
+      text.textContent = `${Number(value).toFixed(4)}°`;
+      item.append(label, text);
+      grid.append(item);
+    });
+    panel.append(grid);
+    chartResults.append(panel);
+  }
+
+  if (data.planets && typeof data.planets === 'object') {
+    const panel = document.createElement('section');
+    panel.className = 'result-panel';
+    const title = document.createElement('h3');
+    title.textContent = 'Bolygóállások';
+    panel.append(title);
+    const grid = document.createElement('div');
+    grid.className = 'data-list';
+    for (const [planet, details] of Object.entries(data.planets)) {
+      if (!details || typeof details !== 'object') continue;
+      const item = document.createElement('div');
+      item.className = 'data-item';
+      const label = document.createElement('strong');
+      label.textContent = readableLabel(planet);
+      const parts = [];
+      if (details.sign) parts.push(String(details.sign));
+      if (Number.isFinite(Number(details.degInSign))) parts.push(`${Number(details.degInSign).toFixed(2)}° a jegyben`);
+      if (Number.isFinite(Number(details.house))) parts.push(`${details.house}. ház`);
+      if (details.retrograde === true) parts.push('retrográd');
+      const text = document.createElement('span');
+      text.textContent = parts.length ? parts.join(' · ') : Object.entries(details)
+        .filter(([, value]) => value === null || ['string', 'number', 'boolean'].includes(typeof value))
+        .map(([key, value]) => `${readableLabel(key)}: ${value}`).join(' · ');
+      item.append(label, text);
+      grid.append(item);
+    }
+    panel.append(grid);
+    chartResults.append(panel);
+  }
+
+  if (!summaryPanel && !data.cusps?.length && !data.planets) {
     const panel = renderObjectGrid('Képletadatok', data);
     if (panel) chartResults.append(panel);
     else {
