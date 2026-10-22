@@ -312,7 +312,8 @@ function renderChartData(data) {
     const grid = document.createElement('div');
     grid.className = 'house-grid';
     data.cusps.forEach((value, index) => {
-      grid.append(createDetailItem(`${index + 1}. ház`, formatPosition(value)));
+      const position = longitudePosition(value);
+      grid.append(createDetailItem(`${index + 1}. ház`, position ? `${position.glyph} ${position.sign}` : 'A pontos fokadat a prémium elemzésben érhető el'));
     });
     disclosure.content.append(grid);
     chartResults.append(disclosure.details);
