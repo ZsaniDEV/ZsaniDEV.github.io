@@ -10,8 +10,37 @@ function setStatus(element, message, isError = false) {
   element.textContent = message;
   element.style.color = isError ? '#fca5a5' : '';
 }
-function readableLabel(value) {
+const EVENT_TRANSLATIONS = {
+  'new moon': 'Újhold', 'full moon': 'Telihold', 'first quarter': 'Első negyed', 'last quarter': 'Utolsó negyed',
+  'waxing crescent': 'Növekvő holdsarló', 'waxing gibbous': 'Növekvő hold', 'waning gibbous': 'Fogyó hold',
+  'waning crescent': 'Fogyó holdsarló', 'solar eclipse': 'Napfogyatkozás', 'lunar eclipse': 'Holdfogyatkozás',
+  'mercury retrograde': 'A Merkúr látszólagos hátráló mozgása', 'venus retrograde': 'A Vénusz látszólagos hátráló mozgása',
+  'mars retrograde': 'A Mars látszólagos hátráló mozgása', 'jupiter retrograde': 'A Jupiter látszólagos hátráló mozgása',
+  'saturn retrograde': 'A Szaturnusz látszólagos hátráló mozgása', 'uranus retrograde': 'Az Uránusz látszólagos hátráló mozgása',
+  'neptune retrograde': 'A Neptunusz látszólagos hátráló mozgása', 'pluto retrograde': 'A Plútó látszólagos hátráló mozgása',
+  'retrograde': 'Látszólagos hátráló mozgás', 'direct': 'Előrehaladó mozgás',
+  'ingress': 'Belépés egy új csillagjegybe', 'conjunction': 'Együttállás', 'opposition': 'Szembenállás',
+  'trine': 'Trigon fényszög', 'square': 'Kvadrát fényszög', 'sextile': 'Szextil fényszög',
+  'station retrograde': 'Hátráló mozgás kezdete', 'station direct': 'Előrehaladó mozgás kezdete',
+  'aries': 'Kos', 'taurus': 'Bika', 'gemini': 'Ikrek', 'cancer': 'Rák', 'leo': 'Oroszlán',
+  'virgo': 'Szűz', 'libra': 'Mérleg', 'scorpio': 'Skorpió', 'sagittarius': 'Nyilas',
+  'capricorn': 'Bak', 'aquarius': 'Vízöntő', 'pisces': 'Halak'
+};
+function translateEventText(value) {
+  const original = String(value ?? '').trim();
+  if (!original) return '';
+  const normalized = original.toLowerCase().replaceAll('_', ' ').replace(/[-]+/g, ' ').replace(/\s+/g, ' ').trim();
+  if (EVENT_TRANSLATIONS[normalized]) return EVENT_TRANSLATIONS[normalized];
+  let result = normalized;
+  for (const [english, hungarian] of Object.entries(EVENT_TRANSLATIONS).sort((a, b) => b[0].length - a[0].length)) {
+    result = result.replace(new RegExp(english.replace(/[.*+?^\u0024{}()|[\]\\\\]/g, '\\function readableLabel(value) {
   return String(value).replaceAll('_', ' ').replace(/\b\w/g, letter => letter.toUpperCase());
+}'), 'gi'), hungarian);
+  }
+  return result === normalized ? original.replaceAll('_', ' ') : result.charAt(0).toLocaleUpperCase('hu-HU') + result.slice(1);
+}
+function readableLabel(value) {
+  return translateEventText(value);
 }
 function formatValue(value) {
   if (value === null || value === undefined || typeof value === 'object') return null;
@@ -276,14 +305,14 @@ function renderEvents(data) {
     date.className = 'event-date';
     date.textContent = eventDate(event.date || event.datetime || event.start);
     const title = document.createElement('h3');
-    title.textContent = event.headline || event.title || event.name || readableLabel(event.kind || 'Égi esemény');
+    title.textContent = translateEventText(event.headline || event.title || event.name || event.kind || 'Égi esemény');
     const description = document.createElement('p');
-    description.textContent = event.short || event.description || event.long || 'Részletek az esemény adatlapján.';
+    description.textContent = translateEventText(event.short || event.description || event.long || 'Részletek az esemény adatlapján.');
     card.append(date, title, description);
     if (event.kind) {
       const kind = document.createElement('span');
       kind.className = 'event-kind';
-      kind.textContent = readableLabel(event.kind);
+      kind.textContent = translateEventText(event.kind);
       card.append(kind);
     }
     skyEvents.append(card);
