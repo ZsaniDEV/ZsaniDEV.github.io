@@ -61,6 +61,11 @@ function formatPosition(value) {
   const position = longitudePosition(value);
   return position ? `${position.glyph} ${position.sign} ${position.degrees}°${String(position.minutes).padStart(2, '0')}′` : 'Nincs adat';
 }
+function localizedSign(value) {
+  if (!value) return '';
+  const names = { aries:'Kos', taurus:'Bika', gemini:'Ikrek', cancer:'Rák', leo:'Oroszlán', virgo:'Szűz', libra:'Mérleg', scorpio:'Skorpió', sagittarius:'Nyilas', capricorn:'Bak', aquarius:'Vízöntő', pisces:'Halak' };
+  return names[String(value).toLowerCase()] || value;
+}
 function prettyPlanetName(key) {
   const normalized = String(key).replace(/[_\s-]/g, '').toLowerCase();
   return PLANET_NAMES[normalized] || readableLabel(key);
@@ -135,8 +140,8 @@ function renderChartData(data) {
   const main = document.createElement('div');
   main.className = 'results-main';
   main.append(
-    createResultCard('Nap-jegy', sun?.sign || (sun?.longitude != null ? longitudePosition(sun.longitude)?.sign : '') || '—', 'sun-card'),
-    createResultCard('Hold-jegy', moon?.sign || (moon?.longitude != null ? longitudePosition(moon.longitude)?.sign : '') || '—', 'moon-card'),
+    createResultCard('Nap-jegy', localizedSign(sun?.sign) || (sun?.longitude != null ? longitudePosition(sun.longitude)?.sign : '') || '—', 'sun-card'),
+    createResultCard('Hold-jegy', localizedSign(moon?.sign) || (moon?.longitude != null ? longitudePosition(moon.longitude)?.sign : '') || '—', 'moon-card'),
     createResultCard('Aszcendens', ascendant ? `${ascendant.glyph} ${ascendant.sign}` : '—', 'asc-card')
   );
   chartResults.append(main);
@@ -164,7 +169,7 @@ function renderChartData(data) {
       card.className = 'planet-card';
       const label = document.createElement('h4');
       label.textContent = prettyPlanetName(key);
-      const sign = details.sign || (details.longitude != null ? longitudePosition(details.longitude)?.sign : '');
+      const sign = localizedSign(details.sign) || (details.longitude != null ? longitudePosition(details.longitude)?.sign : '');
       const degree = Number(details.degInSign);
       const position = sign && Number.isFinite(degree) ? `${sign} · ${Math.floor(degree)}°${String(Math.round((degree % 1) * 60) % 60).padStart(2, '0')}′` : (details.longitude != null ? formatPosition(details.longitude) : (sign || 'Pozíció elérhető'));
       const value = document.createElement('strong');
