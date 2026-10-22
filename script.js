@@ -338,49 +338,49 @@ function eventDate(value) {
 function getEventGuidance(title, kind, rawDescription) {
   const text = `${title} ${kind || ''} ${rawDescription || ''}`.toLowerCase();
   if (/újhold|new moon/.test(text)) return {
-    summary: 'Az újhold az asztrológiában az újrakezdés, a szándékok kijelölése és a következő időszak megtervezése köré irányítja a figyelmet.',
-    experience: 'Nagyobb kedvet érezhetsz ahhoz, hogy tiszta lappal indulj, új célt tűzz ki, vagy változtass egy megszokott rutinon. Könnyebb lehet felismerni, melyik irány vonz igazán, és mi az, amit már nem szeretnél továbbvinni.',
-    watch: 'Válassz ki egy-két reális célt, és bontsd őket konkrét lépésekre. Az ötletek mellé készíts ütemtervet is, hogy a lendületből kézzelfogható eredmény szülessen.'
+    summary: 'Az újhold az újrakezdés és a szándékok kijelölésének ideje: most érdemes megfogalmaznod, merre szeretnél továbbhaladni.',
+    experience: 'A következő napokban az új tervek, a friss ötletek és a változtatás igénye kerülhet előtérbe. Könnyebben felismerheted, mi az, aminek szeretnél helyet adni az életedben, és mely régi szokásokat nőtted ki.',
+    watch: 'Jelölj ki egy fontos célt, és tedd meg az első konkrét lépést felé. A most megfogalmazott szándékokat támogasd átgondolt tervvel és következetes cselekvéssel.'
   };
   if (/telihold|full moon/.test(text)) return {
-    summary: 'A telihold az asztrológiai értelmezésben a kiteljesedés, a felismerések és a lezárás témáit erősíti.',
-    experience: 'Élesebben láthatod egy folyamat eredményét, egy kapcsolat dinamikáját vagy egy régóta húzódó kérdés lényegét. Az érzelmi reakciók is intenzívebbnek tűnhetnek, ezért könnyebben felismerheted, mi fontos számodra.',
-    watch: 'Használd ki a tisztábban látható helyzeteket az összegzésre és a nyílt beszélgetésekre. Feszültség esetén adj időt magadnak, mielőtt reagálsz vagy végleges döntést hozol.'
+    summary: 'A telihold a felismerések, a kiteljesedés és a lezárás időszaka: a fontosabb érzelmi és gyakorlati kérdések most nagyobb hangsúlyt kaphatnak.',
+    experience: 'A következő napokban világosabban kirajzolódhat, hová jutottál egy folyamatban, mi működik jól, és mi az, amin változtatnod kell. A kapcsolatokban is erősebben megmutatkozhatnak a kimondatlan igények és a valódi prioritások.',
+    watch: 'Használd ki ezt az időszakot az összegzésre és az őszinte beszélgetésekre. Ha egy helyzet érzelmileg felfokozottá válik, hallgasd meg a másik felet is, és csak átgondoltan hozz végleges döntést.'
   };
   if (/merkúr|mercury/.test(text) && /hátráló|retrograde|retrográd/.test(text)) return {
-    summary: 'A Merkúr látszólagos hátráló mozgásának időszakában az asztrológia szerint nagyobb hangsúlyt kaphat az újragondolás, az egyeztetés és a részletek ellenőrzése.',
-    experience: 'Visszatérhetnek korábban félretett ügyek, régi beszélgetések vagy befejezetlen feladatok. Feltűnhetnek olyan részletek, amelyeket elsőre könnyű volt átsiklani, és hasznosabbá válhat a lassabb, alaposabb ügyintézés.',
-    watch: 'Olvasd át a fontos üzeneteket, ellenőrizd a dátumokat, címzetteket és foglalásokat, a megállapodásokat pedig foglald írásba. Technikai teendőknél mentsd el a fontos fájlokat, és hagyj időt az esetleges javításokra.'
+    summary: 'A Merkúr hátráló időszaka az újraellenőrzés, a pontosítás és a régi ügyek rendezésének időszaka. A kommunikáció és a szervezés több figyelmet kérhet.',
+    experience: 'Régi beszélgetések, félbehagyott feladatok és korábban elnapolt kérdések kerülhetnek ismét előtérbe. Könnyebben észreveheted a részleteket, amelyek felett korábban átsiklottál, és szükségét érezheted annak, hogy tisztázz egy félreértést.',
+    watch: 'Olvasd át a fontos üzeneteket, ellenőrizd a dátumokat, címzetteket és foglalásokat. A megállapodásokat rögzítsd írásban, a fontos fájlokról készíts biztonsági mentést, és hagyj időt az ügyintézésre.'
   };
   if (/vénusz|venus/.test(text) && /hátráló|retrograde|retrográd/.test(text)) return {
-    summary: 'A Vénusz hátráló mozgását az asztrológia a kapcsolatok, az önértékelés, az ízlés és a pénzügyi szokások újragondolásával kapcsolja össze.',
-    experience: 'Tisztábban láthatod, mely kapcsolatok és értékek fontosak neked, hol van szükség kölcsönösségre, illetve mely kiadások tükrözik valóban a prioritásaidat. Régi ismeretségek vagy korábbi érzelmi témák is újra figyelmet kaphatnak.',
-    watch: 'Beszélj egyértelműen az igényeidről és a határaidról. Nagyobb vásárlás vagy elköteleződés előtt nézd át a költségeket, és adj magadnak időt annak eldöntésére, hogy a választás hosszabb távon is megfelelő-e.'
+    summary: 'A Vénusz hátráló időszaka a kapcsolatok, az önértékelés és az anyagi prioritások felülvizsgálatára irányítja a figyelmet.',
+    experience: 'Világosabban láthatod, mely kapcsolatok adnak valódi kölcsönösséget, hol van szükség őszintébb kommunikációra, és mely kiadások tükrözik az értékeidet. Korábbi érzelmi témák vagy régi ismeretségek is újra fontossá válhatnak.',
+    watch: 'Fogalmazd meg egyértelműen az igényeidet és a határaidat. Nagyobb vásárlás előtt nézd át a költségeket, és olyan döntést hozz, amely hosszabb távon is összhangban áll a prioritásaiddal.'
   };
   if (/hátráló mozgás vége|retrograde end|stations direct|előrehaladó mozgás/.test(text)) return {
-    summary: 'A látszólagos hátráló szakasz vége az asztrológiai értelmezésben a tisztázás, a tanulságok összegzése és a fokozatos továbblépés időszaka.',
-    experience: 'Könnyebb lehet rendszerezni az elmúlt hetek tapasztalatait, lezárni a függőben maradt egyeztetéseket, és újra lendületet adni egy korábban elakadt tervnek. A korábban felülvizsgált döntések most konkrét következő lépésekké állhatnak össze.',
-    watch: 'Vedd elő a félretett terveket, ellenőrizd, mi változott, és állíts fel új prioritásokat. Haladj lépésenként, és a friss információk alapján véglegesítsd a döntéseidet.'
+    summary: 'A hátráló szakasz lezárulta a tanulságok összegzését és a fokozatos előrelépést jelzi: a korábban elakadt ügyek új lendületet kaphatnak.',
+    experience: 'Az elmúlt időszak tapasztalatai most segíthetnek tisztábban látni, hogyan érdemes folytatnod egy tervet vagy lezárnod egy függőben maradt kérdést. Könnyebb lehet rendet tenni, dönteni a következő lépésről, és visszatérni a korábban félretett feladatokhoz.',
+    watch: 'Vedd elő a korábbi terveidet, nézd át, mi változott, és határozd meg a következő lépéseket. A lendületet fokozatos, következetes haladással használd ki.'
   };
   if (/hátráló mozgásba kezd|retrograde start|stations retrograde/.test(text)) return {
-    summary: 'A látszólagos hátráló mozgás kezdetét az asztrológia az adott bolygó témáinak felülvizsgálatával és a részletekre irányuló figyelemmel társítja.',
-    experience: 'Az adott területen több alkalom adódhat arra, hogy visszatérj egy korábbi döntéshez, újraellenőrizz egy folyamatot, vagy más szemszögből nézz rá egy kérdésre. A gyors előrelépés helyett az átgondolás és a finomhangolás kerülhet előtérbe.',
-    watch: 'Hagyj időt az ellenőrzésre, kérdezz vissza, ha valami nem egyértelmű, és ne zsúfold túl a napirendedet. A felülvizsgálatot használd a terv pontosítására, ne okként arra, hogy minden döntést elhalassz.'
+    summary: 'A hátráló szakasz kezdetével az adott bolygó témái felülvizsgálatra kerülnek: most a részletek, a korábbi döntések és a félbehagyott ügyek kapnak nagyobb hangsúlyt.',
+    experience: 'A következő időszakban visszatérhetsz egy korábbi kérdéshez, átdolgozhatsz egy tervet, vagy felismerheted, hogy egy folyamat pontosításra szorul. A gyorsaságnál többet érhet a körültekintő, alapos munka.',
+    watch: 'Ellenőrizd a részleteket, kérdezz vissza, ha valami nem világos, és tervezz tartalékidőt. A felülvizsgálatot használd arra, hogy megerősítsd az alapokat és kijavítsd, ami nem működik.'
   };
   if (/időszaka kezdődik|season start|belép a .* jegyébe|enters/.test(text)) return {
-    summary: 'A Nap vagy egy bolygó jegyváltása az asztrológiában egy új témakör kezdetét jelképezi, amelyre a következő időszakban nagyobb figyelem irányulhat.',
-    experience: 'Erősebben foglalkoztathatnak az adott jegyhez társított témák, például a kezdeményezés, a kapcsolódás, a rendszerezés vagy a hosszabb távú célok. Jó alkalom lehet arra, hogy tudatosan kiválassz egy területet, amelyben fejlődni szeretnél.',
-    watch: 'Fordítsd a figyelmet egy konkrét, megvalósítható célra, és tervezz hozzá rendszeres lépéseket. Figyeld meg, milyen lehetőségek jelennek meg, de a döntéseidet a saját körülményeidhez igazítsd.'
+    summary: 'A jegyváltás új hangsúlyt ad a következő időszaknak: az adott jegyhez társított témák és célok kerülnek előtérbe.',
+    experience: 'Nagyobb figyelmet kaphat a kezdeményezés, a kapcsolódás, a rendszerezés vagy a hosszabb távú tervezés — attól függően, melyik bolygó és jegy érintett. Ez jó alkalom arra, hogy felismerd, melyik életterületen szeretnél tudatosabban haladni.',
+    watch: 'Válassz egy területet, amelyre több figyelmet fordítasz, és fogalmazz meg hozzá konkrét célt. A szándékot váltsd apró, rendszeres lépésekre, és figyeld, milyen lehetőségek segítik a haladásodat.'
   };
   if (/mars|jupiter|szaturnusz|uránusz|neptunusz|plútó/.test(text)) return {
-    summary: 'Ez a bolygóesemény az asztrológiai hagyomány szerint az adott bolygóhoz társított életterületekre irányítja a figyelmet.',
-    experience: 'A bolygó és az esemény típusa alapján előtérbe kerülhet a kezdeményezés, a növekedés, a felelősség, a változtatás vagy a hosszabb távú tervezés témája. Figyeld meg, melyik kapcsolódik leginkább a jelenlegi helyzetedhez.',
-    watch: 'Gondold át, hol érdemes tudatosabban cselekedned, és hol hasznosabb türelmesen építkezned. A gyakorlati lehetőségeket és korlátokat is mérlegeld, mielőtt változtatsz.'
+    summary: 'Ez a bolygóesemény az adott bolygóhoz kapcsolódó témákat helyezi előtérbe, például a cselekvést, a növekedést, a felelősséget vagy a változást.',
+    experience: 'Az esemény jellegétől függően erősebb késztetést érezhetsz a kezdeményezésre, a terveid bővítésére, a rendrakásra vagy egy régóta halogatott változtatásra. Érdemes megfigyelni, melyik téma kapcsolódik leginkább a jelenlegi élethelyzetedhez.',
+    watch: 'Használd tudatosan a lendületedet: jelölj ki prioritásokat, és a nagyobb célokat bontsd megvalósítható lépésekre. A lelkesedés mellé társíts reális ütemtervet és következetes utánkövetést.'
   };
   return {
-    summary: 'Ez az égi esemény az asztrológiai értelmezés szerint egy téma tudatosabb megfigyelésére adhat alkalmat.',
-    experience: 'Érdemes észrevenni, milyen gondolatok, döntések vagy visszatérő helyzetek kerülnek előtérbe az esemény körüli napokban. A megfigyelések segíthetnek tisztábban látni, mi igényel figyelmet, és mi működik jól.',
-    watch: 'Jegyezd fel a fontos felismeréseket, majd fordítsd őket konkrét, megvalósítható lépésekre. Az asztrológiai értelmezést kezeld önismereti keretként, és vedd figyelembe a tényleges körülményeket is.'
+    summary: 'Ez az égi esemény egy fontos téma tudatosítására és a következő lépések átgondolására hívja fel a figyelmet.',
+    experience: 'Az esemény körüli napokban érdemes figyelni arra, mely kérdések, döntések vagy kapcsolatok kerülnek előtérbe. A visszatérő témák segíthetnek felismerni, hol van szükség több figyelemre, tisztázásra vagy új irány kijelölésére.',
+    watch: 'Jegyezd fel a felismeréseidet, majd válaszd ki azt az egy lépést, amely a legtöbbet segít a továbblépésben. Maradj figyelmes a lehetőségekre, és igazítsd a döntéseidet a tényleges körülményeidhez.'
   };
 }
 function renderEvents(data) {
