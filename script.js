@@ -63,9 +63,9 @@ function translateEventText(value) {
 
   let result = original;
   const replacements = [
-    [/The sun enters (\w+) at ([\d:]+\s*[ap]m) on ([A-Za-z]+ \d{1,2}, \d{4}), running until ([A-Za-z]+ \d{1,2}, \d{4})\./i,
+    [/The sun enters (\w+) at ([\d:]+\s*[ap]m)(?:\s+[A-Z]{1,4})? on ([A-Za-z]+ \d{1,2},? \d{4}), running until ([A-Za-z]+ \d{1,2},? \d{4})\.?/i,
       (_, s, time, date, until) => `A Nap ${formatEnglishDate(date)} napján ${formatEnglishTime(time)}-kor belép a ${sign(s)} jegyébe, és ${formatEnglishDate(until)} napjáig ott tartózkodik.`],
-    [/The (new moon|full moon) reaches ([\d.]+)° (\w+) at ([\d:]+\s*[ap]m) on ([A-Za-z]+ \d{1,2}, \d{4})\./i,
+    [/The (new moon|full moon) reaches ([\d.]+)° (\w+) at ([\d:]+\s*[ap]m)(?:\s+[A-Z]{1,4})? on ([A-Za-z]+ \d{1,2},? \d{4})\.?/i,
       (_, phase, degree, s, time, date) => `${/^new/i.test(phase) ? 'Az újhold' : 'A telihold'} ${formatEnglishDate(date)} napján ${formatEnglishTime(time)}-kor a ${sign(s)} jegy ${degree}. fokánál következik be.`],
     [/(Mercury|Venus|Mars|Jupiter|Saturn|Uranus|Neptune|Pluto) stations retrograde at ([\d.]+)° (\w+) on ([A-Za-z]+ \d{1,2}, \d{4}), and turns direct again on ([A-Za-z]+ \d{1,2}, \d{4})\./i,
       (planet, degree, s, date, until) => `A ${prettyPlanetName(planet)} ${formatEnglishDate(date)} napján kezdi meg látszólagos hátráló mozgását a ${sign(s)} jegy ${degree}. fokánál. A mozgás ${formatEnglishDate(until)} napján ér véget.`],
