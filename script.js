@@ -352,26 +352,26 @@ function renderChartData(data) {
 }
 form.addEventListener('submit', async event => {
   event.preventDefault();
-  const values = new FormData(form);
-  const date = String(values.get('birthDate') || '');
-  const time = String(values.get('birthTime') || '12:00');
-  const place = String(values.get('birthPlace') || '').trim();
+  const dateInput = form.elements.birthDate;
+  const date = String(dateInput.value || '');
+  const time = String(form.elements.birthTime.value || '12:00');
+  const place = String(form.elements.birthPlace.value || '').trim();
   if (!date || !place) return;
-  // Strictly accept ISO calendar dates with a four-digit year.
-  const dateMatch = date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (!dateMatch) {
-    setStatus(chartStatus, 'A születési évszámot pontosan 4 számjeggyel add meg.', true);
-    form.elements.birthDate.focus();
+
+  // Read the browser's native date value rather than FormData's serialized value.
+  // valueAsDate is UTC-based for input[type="date"], avoiding locale-format issues.
+  const selectedDate = dateInput.valueAsDate;
+  if (!selectedDate || Number.isNaN(selectedDate.getTime())) {
+    setStatus(chartStatus, 'Válassz érvényes születési dátumot.', true);
+    dateInput.focus();
     return;
   }
-  const [, yearText, monthText, dayText] = dateMatch;
-  const year = Number(yearText);
-  const month = Number(monthText);
-  const day = Number(dayText);
-  const checkedDate = new Date(year, month - 1, day);
-  if (checkedDate.getFullYear() !== year || checkedDate.getMonth() !== month - 1 || checkedDate.getDate() !== day) {
-    setStatus(chartStatus, 'Érvényes születési dátumot adj meg.', true);
-    form.elements.birthDate.focus();
+  const year = selectedDate.getUTCFullYear();
+  const month = selectedDate.getUTCMonth() + 1;
+  const day = selectedDate.getUTCDate();
+  if (year < 1 || year > 9999) {
+    setStatus(chartStatus, 'A születési évszámot 4 számjeggyel add meg.', true);
+    dateInput.focus();
     return;
   }
   const [hour, minute] = time.split(':').map(Number);
