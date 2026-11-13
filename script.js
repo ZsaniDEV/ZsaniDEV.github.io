@@ -132,7 +132,7 @@ function longitudePosition(value) {
 }
 function formatPosition(value) {
   const position = longitudePosition(value);
-  return position ? `${position.glyph} ${position.sign} ${position.degrees}°${String(position.minutes).padStart(2, '0')}′` : 'Nincs adat';
+  return position ? `${position.sign} ${position.degrees}°${String(position.minutes).padStart(2, '0')}′` : 'Nincs adat';
 }
 function localizedSign(value) {
   if (!value) return '';
@@ -214,7 +214,7 @@ function renderChartData(data) {
   main.className = 'results-main';
   main.append(
     createResultCard('Nap-jegy', localizedSign(sun?.sign) || (sun?.longitude != null ? longitudePosition(sun.longitude)?.sign : '') || '—', 'sun-card'),
-    createResultCard('Aszcendens', ascendant ? `${ascendant.glyph} ${ascendant.sign}` : '—', 'asc-card'),
+    createResultCard('Aszcendens', ascendant ? ascendant.sign : '—', 'asc-card'),
     createResultCard('Hold-jegy', localizedSign(moon?.sign) || (moon?.longitude != null ? longitudePosition(moon.longitude)?.sign : '') || '—', 'moon-card')
   );
   chartResults.append(main);
@@ -262,7 +262,7 @@ function renderChartData(data) {
   positionStrip.className = 'position-strip';
   const mcPosition = longitudePosition(data.midheaven);
   positionStrip.append(
-    createDetailItem('MC – középégpont', mcPosition ? `${mcPosition.glyph} ${mcPosition.sign}` : 'Részletes adat a prémium elemzésben'),
+    createDetailItem('MC – középégpont', mcPosition ? mcPosition.sign : 'Részletes adat a prémium elemzésben'),
     createDetailItem('Pontos fokadatok', 'Prémium elemzésben'),
     createDetailItem('Házrendszer', data.houseSystem === 'Placidus' ? 'Placidus' : (data.houseSystem || '—'))
   );
@@ -313,7 +313,7 @@ function renderChartData(data) {
     grid.className = 'house-grid';
     data.cusps.forEach((value, index) => {
       const position = longitudePosition(value);
-      grid.append(createDetailItem(`${index + 1}. ház`, position ? `${position.glyph} ${position.sign}` : 'A pontos fokadat a prémium elemzésben érhető el'));
+      grid.append(createDetailItem(`${index + 1}. ház`, position ? position.sign : 'A pontos fokadat a prémium elemzésben érhető el'));
     });
     disclosure.content.append(grid);
     chartResults.append(disclosure.details);
