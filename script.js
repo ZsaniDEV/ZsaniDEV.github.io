@@ -188,6 +188,12 @@ function createDisclosure(titleText, countText = '') {
   return { details, content };
 }
 function renderChartData(data) {
+  try {
+    sessionStorage.setItem('cosmyday_premium_report_data', JSON.stringify({
+      data,
+      birth: { date: dateInput.value, time: String(form.elements.birthTime.value || '12:00'), place: String(form.elements.birthPlace.value || '').trim() }
+    }));
+  } catch (error) { console.warn('A képletadatok ideiglenes mentése nem sikerült.', error); }
   chartResults.replaceChildren();
   chartResults.hidden = false;
   const heading = document.createElement('div');
@@ -630,6 +636,64 @@ window.addEventListener('focus', () => {
 loadEvents();
 scheduleMidnightRefresh();
 
+
+function openPremiumReport() {
+  let saved;
+  try { saved = JSON.parse(sessionStorage.getItem('cosmyday_premium_report_data') || 'null'); } catch { saved = null; }
+  if (!saved?.data || !saved?.birth) {
+    setStatus(chartStatus, 'A riporthoz szükséges képletadatok nem találhatók ebben a böngésző-munkamenetben. Számítsd ki újra a képletet ezen az eszközön.', true);
+    return;
+  }
+  const data = saved.data;
+  const planets = data.planets && typeof data.planets === 'object' ? data.planets : {};
+  const getSign = (details) => localizedSign(details?.sign) || (details?.longitude != null ? longitudePosition(details.longitude)?.sign : '') || '—';
+  const signThemes = {
+    'Kos':'A kezdeményezés, az önállóság és a cselekvés témái. Önismereti fókusz: mikor szolgálja a lendület a célodat, és mikor segít a megfontolás?',
+    'Bika':'A stabilitás, az értékek és a biztonság témái. Önismereti fókusz: hogyan teremtesz tartósságot, miközben teret hagysz a változásnak?',
+    'Ikrek':'A kíváncsiság, a tanulás és a kommunikáció témái. Önismereti fókusz: hogyan rendezed a sok információt és fejezed ki világosan a gondolataidat?',
+    'Rák':'Az érzelmi biztonság, a kötődés és a gondoskodás témái. Önismereti fókusz: hogyan egyezteted össze mások támogatását a saját szükségleteiddel?',
+    'Oroszlán':'Az önkifejezés, a kreativitás és az elismerés témái. Önismereti fókusz: hogyan őrzöd az önértékelésed külső visszajelzésektől függetlenül?',
+    'Szűz':'A rendszerezés, a részletek és a hasznosság témái. Önismereti fókusz: mikor segít a precizitás, és mikor érdemes elfogadni az elég jó megoldást?',
+    'Mérleg':'A kölcsönösség, a harmónia és az egyensúly témái. Önismereti fókusz: hogyan képviseled saját álláspontodat a kapcsolati figyelem mellett?',
+    'Skorpió':'A bizalom, az intenzitás és a mélyebb megértés témái. Önismereti fókusz: hogyan viszonyulsz a sebezhetőséghez és a bizonytalansághoz?',
+    'Nyilas':'A tágabb perspektíva, a felfedezés és a meggyőződések témái. Önismereti fókusz: hogyan kapcsolod össze a fejlődési vágyat a gyakorlati következményekkel?',
+    'Bak':'A felelősség, a hosszú távú célok és a teljesítmény témái. Önismereti fókusz: hogyan osztod meg az energiádat munka, pihenés és kapcsolatok között?',
+    'Vízöntő':'Az önálló gondolkodás, az újítás és a közösség témái. Önismereti fókusz: hogyan őrzöd az egyediségedet együttműködés közben?',
+    'Halak':'A képzelőerő, az együttérzés és a finom benyomások témái. Önismereti fókusz: hogyan különíted el a megérzést a tényszerű bizonyosságtól?'
+  };
+  const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const positions = Object.entries(planets).filter(([,v]) => v && typeof v === 'object').map(([key,v]) => {
+    const p = longitudePosition(v.longitude);
+    const sign = getSign(v);
+    const degree = p && Number.isFinite(p.degree) ? p.degree.toFixed(2) + '°' : '';
+    const house = v.house != null ? v.house + '. ház' : '';
+    const retro = v.retrograde === true ? 'retrográd' : '';
+    return {name:prettyPlanetName(key), sign, degree, house, retro, text:signThemes[sign] || 'A jelölő szimbolikus témáját a teljes képlet összefüggésében érdemes mérlegelni.'};
+  });
+  const sun = Object.entries(planets).find(([k]) => k.replace(/[_\s-]/g,'').toLowerCase()==='sun')?.[1];
+  const moon = Object.entries(planets).find(([k]) => k.replace(/[_\s-]/g,'').toLowerCase()==='moon')?.[1];
+  const asc = longitudePosition(data.ascendant);
+  const main = [
+    ['Nap',getSign(sun),signThemes[getSign(sun)]],
+    ['Aszcendens',asc?.sign || '—',signThemes[asc?.sign] || 'Az aszcendens a megjelenés és a helyzetekhez való kezdeti viszony szimbolikus kiindulópontja.'],
+    ['Hold',getSign(moon),signThemes[getSign(moon)]]
+  ];
+  const html = `<!doctype html><html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>CosmyDay – Prémium képletelemzés</title>
+  <style>body{font:16px/1.65 Georgia,serif;color:#202638;max-width:850px;margin:40px auto;padding:0 24px}h1,h2,h3{font-family:Arial,sans-serif;color:#17223b}h1{font-size:30px}h2{margin-top:32px;border-bottom:1px solid #d6dbe4;padding-bottom:8px}.lead{color:#626d82}.item{break-inside:avoid;margin:18px 0}button{padding:12px 18px;background:#d9ba7b;border:0;border-radius:8px;font-weight:bold;cursor:pointer}@media print{button{display:none}body{margin:0 auto}h2{break-after:avoid}}</style></head><body>
+  <button onclick="window.print()">PDF mentése / nyomtatás</button>
+  <h1>A képleted mélyebb összefüggései</h1><p class="lead">CosmyDay · Személyes, szimbolikus asztrológiai önismereti riport</p>
+  <p><b>Születési adatok:</b> ${escapeHtml(saved.birth.date)} · ${escapeHtml(saved.birth.time)} · ${escapeHtml(saved.birth.place)}</p>
+  <p>Ez az anyag a kiszámított képlet szimbolikus értelmezése. Nem tud gyermekkori eseményeket, személyiségjegyeket vagy jövőbeli történéseket tényként megállapítani. Az alábbi témák önreflexiós kiindulópontok; vesd össze őket saját tapasztalataiddal.</p>
+  <h2>A három fő jelölő</h2>${main.map(([label,sign,text])=>`<section class="item"><h3>${escapeHtml(label)} · ${escapeHtml(sign)}</h3><p>${escapeHtml(text || 'A jelölő szimbolikus témája a teljes képlet összefüggésében értelmezhető.')}</p></section>`).join('')}
+  <h2>Bolygóállások és témák</h2>${positions.map(p=>`<section class="item"><h3>${escapeHtml(p.name)} · ${escapeHtml(p.sign)}</h3><p><b>Pozíció:</b> ${escapeHtml(p.degree)} ${escapeHtml(p.house)} ${escapeHtml(p.retro)}</p><p>${escapeHtml(p.text)}</p></section>`).join('')}
+  <h2>Önismereti kérdések</h2><ol><li>Melyik leírás rezonál a jelenlegi tapasztalataiddal, és melyik nem?</li><li>Milyen visszatérő döntési vagy kapcsolati mintát tudsz konkrét példával azonosítani?</li><li>Milyen apró, megfigyelhető változtatás támogatná a következő időszakodat?</li><li>Melyik erőforrásodra támaszkodsz nehéz helyzetben, és hogyan tudnád tudatosabban használni?</li><li>Milyen tények vagy tapasztalatok árnyalják az asztrológiai szimbolikát?</li></ol>
+  <h2>Gyakorlati reflexió</h2><p>Válassz egy kérdést, jegyezd fel a saját válaszodat, majd egy hét múlva tekints vissza rá. Az értelmezést kezeld gondolatébresztő keretként, ne döntési vagy egészségügyi tanácsként.</p>
+  <p class="lead">CosmyDay · Az asztrológia szimbolikus értelmezési rendszer.</p></body></html>`;
+  const win = window.open('', '_blank');
+  if (!win) { setStatus(chartStatus, 'A riportablak megnyitását a böngésző blokkolta. Engedélyezd a felugró ablakot, majd próbáld újra.', true); return; }
+  win.document.open(); win.document.write(html); win.document.close();
+}
+
 async function verifyReturnedPayment() {
   const params = new URLSearchParams(window.location.search);
   if (params.get('payment') !== 'success') return;
@@ -659,10 +723,14 @@ async function verifyReturnedPayment() {
       message.textContent = 'A Stripe még nem jelzett sikeresen kifizetett tranzakciót. Fizetés státusza: ' + (result.status || 'ismeretlen') + '.';
       return;
     }
-    message.textContent = 'A Stripe visszaigazolta a sikeres tesztfizetést (' + Number(result.amount_huf).toLocaleString('hu-HU') + ' Ft). A prémium riport elkészítése a következő fejlesztési lépés.';
+    message.textContent = 'A Stripe visszaigazolta a sikeres fizetést (' + Number(result.amount_huf).toLocaleString('hu-HU') + ' Ft). A személyes riport elkészíthető.';
     const note = document.createElement('p');
-    note.textContent = 'A fizetés ellenőrzése sikeres. Ez az oldal jelenleg még nem állít ki letölthető prémium PDF-riportot.';
-    panel.append(note);
+    note.textContent = 'A riport nyomtatási nézetben nyílik meg; a böngészőben PDF-ként mentheted.';
+    const reportButton = document.createElement('button');
+    reportButton.type = 'button';
+    reportButton.textContent = 'Prémium riport megnyitása és PDF mentése';
+    reportButton.addEventListener('click', openPremiumReport);
+    panel.append(note, reportButton);
   } catch (error) {
     message.textContent = error.message || 'A fizetés ellenőrzése most nem sikerült.';
   } finally {
