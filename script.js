@@ -368,7 +368,7 @@ function renderChartData(data) {
     amountSelect.append(option);
   }
   const emailLabel = document.createElement('label');
-  emailLabel.textContent = 'E-mail cím a vásárláshoz és a riporthoz';
+  emailLabel.textContent = 'E-mail-cím a megrendelés visszaigazolásához';
   emailLabel.htmlFor = 'premium-customer-email';
   const emailInput = document.createElement('input');
   emailInput.type = 'email';
