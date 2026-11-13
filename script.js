@@ -672,14 +672,38 @@ let eventsRequestInProgress = false;
 async function loadEvents() {
   if (eventsRequestInProgress) return;
   eventsRequestInProgress = true;
+  skyEvents.replaceChildren();
+  setStatus(skyStatus, 'Az égi események betöltése…');
   try {
-    const response = await fetch('/.netlify/functions/events?days=45&min_importance=35');
+    // Avoid an endless loading state if the upstream astrology service or Netlify function stalls.
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 15000);
+    let response;
+    try {
+      response = await fetch('/.netlify/functions/events?days=45&min_importance=35', {
+        headers: { 'Accept': 'application/json' },
+        cache: 'no-store',
+        signal: controller.signal
+      });
+    } finally {
+      window.clearTimeout(timeoutId);
+    }
     if (!response.ok) throw new Error(`Az égi események nem érhetők el (HTTP ${response.status}).`);
-    renderEvents(await response.json());
+    const payload = await response.json();
+    renderEvents(payload);
     lastEventsFetch = Date.now();
   } catch (error) {
     skyEvents.replaceChildren();
-    setStatus(skyStatus, error.message || 'Az aktuális események most nem tölthetők be. Kérjük, próbáld újra később.', true);
+    const message = error.name === 'AbortError'
+      ? 'Az égi események szolgáltatása 15 másodpercen belül nem válaszolt. Próbáld meg újra.'
+      : (error.message || 'Az aktuális események most nem tölthetők be. Próbáld meg újra később.');
+    setStatus(skyStatus, message, true);
+    const retryButton = document.createElement('button');
+    retryButton.type = 'button';
+    retryButton.className = 'primary-button';
+    retryButton.textContent = 'Égi események újratöltése';
+    retryButton.addEventListener('click', loadEvents);
+    skyEvents.append(retryButton);
   } finally {
     eventsRequestInProgress = false;
   }
