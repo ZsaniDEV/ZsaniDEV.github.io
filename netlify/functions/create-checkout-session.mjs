@@ -12,7 +12,7 @@ export default async (request) => {
   form.set('success_url', origin + '/?payment=success&session_id={CHECKOUT_SESSION_ID}');
   form.set('cancel_url', origin + '/?payment=cancelled');
   form.set('line_items[0][price_data][currency]', 'huf');
-  form.set('line_items[0][price_data][unit_amount]', String(amount));
+  form.set('line_items[0][price_data][unit_amount]', String(amount * 100));
   form.set('line_items[0][price_data][product_data][name]', 'Égi Térkép – prémium képletelemzés támogatása');
   form.set('line_items[0][quantity]', '1');
   form.set('metadata[service]', 'premium_chart_report');
