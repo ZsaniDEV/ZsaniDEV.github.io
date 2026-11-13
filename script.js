@@ -354,7 +354,7 @@ function renderChartData(data) {
   premiumStatus.textContent = 'A prémium riport díja 5 000 Ft. A választható magasabb összegek önkéntes támogatások, amelyek a projekt fenntartását segítik; a szolgáltatás tartalma minden összegnél azonos.';
   const paymentExplainer = document.createElement('div');
   paymentExplainer.className = 'payment-explainer';
-  paymentExplainer.innerHTML = '<h4>Mit kapsz a fizetésért?</h4><p>A fizetés a személyre szabott, részletes asztrológiai önismereti riport elkészítését és PDF formátumban történő mentési lehetőségét teszi elérhetővé. A riport a kiszámított születési képleted adataira épül, fejezeteket és nyomtatható, kézzel kitölthető munkalapokat tartalmaz.</p><p><strong>Az összegválasztás jelentése:</strong> 5 000 Ft a riporthoz kapcsolódó alapösszeg. 10 000–25 000 Ft között ennél nagyobb, önkéntes támogatást is választhatsz. A magasabb összeg nem jelent több fejezetet, külön funkciót, gyorsabb teljesítést vagy más többletszolgáltatást. Minden választott összeg ugyanazt a riportot nyitja meg.</p><p>A fizetést a Stripe biztonságos fizetési felületén teljesíted. A CosmyDay nem kapja meg és nem tárolja a bankkártyád teljes adatait.</p>';
+  paymentExplainer.innerHTML = '<h4>Mit kapsz a vásárlásért?</h4><p>A vásárlással személyre szabott, részletes asztrológiai önismereti riportot kapsz, amely PDF formátumban menthető. A riport a kiszámított születési képleted adataira épül, fejezeteket és nyomtatható, kézzel kitölthető munkalapokat tartalmaz.</p><p><strong>Az összegválasztás jelentése:</strong> 5 000 Ft a riporthoz kapcsolódó alapösszeg. 10 000–25 000 Ft között ennél nagyobb, önkéntes támogatást is választhatsz. A magasabb összeg nem jelent több fejezetet, külön funkciót, gyorsabb teljesítést vagy más többletszolgáltatást. Minden választott összeg ugyanazt a riportot nyitja meg.</p><p>A vásárlás a Stripe biztonságos fizetési felületén történik. A CosmyDay nem kapja meg és nem tárolja a bankkártyád teljes adatait.</p>';
   const paymentControls = document.createElement('div');
   paymentControls.className = 'premium-payment-controls';
   const amountLabel = document.createElement('label');
@@ -368,7 +368,7 @@ function renderChartData(data) {
     amountSelect.append(option);
   }
   const emailLabel = document.createElement('label');
-  emailLabel.textContent = 'E-mail cím a fizetéshez és a riporthoz';
+  emailLabel.textContent = 'E-mail cím a vásárláshoz és a riporthoz';
   emailLabel.htmlFor = 'premium-customer-email';
   const emailInput = document.createElement('input');
   emailInput.type = 'email';
@@ -382,7 +382,7 @@ function renderChartData(data) {
   const emailNote = document.createElement('p');
   emailNote.id = 'premium-email-note';
   emailNote.className = 'payment-email-note';
-  emailNote.textContent = 'Ezt a címet továbbítjuk a Stripe-nak a fizetéshez kapcsolódó visszaigazoláshoz. A riport e-mailes kézbesítése későbbi fejlesztési lépés.';
+  emailNote.textContent = 'Ezt a címet továbbítjuk a Stripe-nak a vásárlás visszaigazolásához. A riport e-mailes kézbesítése későbbi fejlesztési lépés.';
   const legalAcceptance = document.createElement('div');
   legalAcceptance.className = 'legal-acceptance';
   const makeLegalCheckbox = (id, labelHtml) => {
@@ -404,18 +404,18 @@ function renderChartData(data) {
   const earlyDeliveryCheckbox = makeLegalCheckbox('request-early-delivery', 'Kifejezetten kérem, hogy a digitális riport szolgáltatása a 14 napos elállási határidő lejárta előtt megkezdődjön. Tudomásul veszem, hogy a digitális tartalom teljesítésének megkezdésével a jogszabály szerinti feltételek fennállása esetén elveszíthetem az elállási jogomat.');
   const paymentButton = document.createElement('button');
   paymentButton.type = 'button';
-  const updatePayButtonLabel = () => { paymentButton.textContent = 'Fizetési kötelezettséggel járó megrendelés · ' + Number(amountSelect.value).toLocaleString('hu-HU') + ' Ft'; };
+  const updatePayButtonLabel = () => { paymentButton.textContent = 'Megrendelés · ' + Number(amountSelect.value).toLocaleString('hu-HU') + ' Ft'; };
   updatePayButtonLabel();
   amountSelect.addEventListener('change', updatePayButtonLabel);
   paymentButton.addEventListener('click', async () => {
-    if (!emailInput.checkValidity()) { premiumStatus.textContent = 'Adj meg egy érvényes e-mail címet a fizetéshez.'; emailInput.reportValidity(); emailInput.focus(); return; }
+    if (!emailInput.checkValidity()) { premiumStatus.textContent = 'Adj meg egy érvényes e-mail címet a vásárláshoz.'; emailInput.reportValidity(); emailInput.focus(); return; }
     if (!termsCheckbox.checked || !privacyCheckbox.checked || !earlyDeliveryCheckbox.checked) {
       premiumStatus.textContent = 'A fizetés előtt az ÁSZF elfogadása, az adatkezelési tájékoztató tudomásulvétele és a digitális riport korai teljesítésére vonatkozó nyilatkozat szükséges.';
       (!termsCheckbox.checked ? termsCheckbox : !privacyCheckbox.checked ? privacyCheckbox : earlyDeliveryCheckbox).focus();
       return;
     }
     paymentButton.disabled = true;
-    premiumStatus.textContent = 'A fizetési oldal előkészítése…';
+    premiumStatus.textContent = 'A biztonságos vásárlási felület előkészítése…';
     try {
       const checkoutResponse = await fetch('/.netlify/functions/create-checkout-session', {
         method: 'POST',
@@ -428,10 +428,10 @@ function renderChartData(data) {
         const contentType = checkoutResponse.headers.get('content-type') || '';
         throw new Error('A Netlify fizetési funkció nem JSON választ adott (HTTP ' + checkoutResponse.status + ', ' + contentType + '). Valószínűleg a legutóbbi deploy még nem tartalmazza a create-checkout-session funkciót. Ellenőrizd a Netlify Deploy logot.');
       }
-      if (!checkoutResponse.ok || !checkout.url) throw new Error(checkout.error || 'A Stripe fizetési oldal nem érhető el (HTTP ' + checkoutResponse.status + ').');
+      if (!checkoutResponse.ok || !checkout.url) throw new Error(checkout.error || 'A Stripe vásárlási felülete nem érhető el (HTTP ' + checkoutResponse.status + ').');
       window.location.assign(checkout.url);
     } catch (error) {
-      premiumStatus.textContent = error.message || 'A fizetés indítása nem sikerült.';
+      premiumStatus.textContent = error.message || 'A vásárlás indítása nem sikerült.';
       paymentButton.disabled = false;
     }
   });
@@ -779,7 +779,7 @@ async function verifyReturnedPayment() {
   const panel = document.createElement('section');
   panel.className = 'result-panel';
   const heading = document.createElement('h3');
-  heading.textContent = 'Stripe fizetés ellenőrzése';
+  heading.textContent = 'Stripe-vásárlás ellenőrzése';
   const message = document.createElement('p');
   message.textContent = 'A tranzakciót a Stripe rendszerében ellenőrizzük…';
   panel.append(heading, message);
@@ -796,7 +796,7 @@ async function verifyReturnedPayment() {
       return;
     }
     try { localStorage.setItem('cosmyday_paid_session_id', sessionId); } catch (error) { console.warn('A fizetési munkamenet mentése nem sikerült.', error); }
-    message.textContent = 'A Stripe visszaigazolta a sikeres fizetést (' + Number(result.amount_huf).toLocaleString('hu-HU') + ' Ft). A személyes riport elkészíthető.';
+    message.textContent = 'A Stripe visszaigazolta a sikeres vásárlást (' + Number(result.amount_huf).toLocaleString('hu-HU') + ' Ft). A személyes riport elkészíthető.';
     const note = document.createElement('p');
     note.textContent = 'A riport nyomtatási nézetben nyílik meg; a böngészőben PDF-ként mentheted.';
     const reportButton = document.createElement('button');
