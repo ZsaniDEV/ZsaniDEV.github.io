@@ -139,6 +139,13 @@ function localizedSign(value) {
   const names = { aries:'Kos', taurus:'Bika', gemini:'Ikrek', cancer:'Rák', leo:'Oroszlán', virgo:'Szűz', libra:'Mérleg', scorpio:'Skorpió', sagittarius:'Nyilas', capricorn:'Bak', aquarius:'Vízöntő', pisces:'Halak' };
   return names[String(value).toLowerCase()] || value;
 }
+function formatHouseLabel(value) {
+  if (value === null || value === undefined || value === '') return '';
+  const raw = String(value).trim();
+  const match = raw.match(/^(\d{1,2})(?:\s*\.)?(?:\s*há[z]?\s*)?$/i);
+  if (match) return `${Number(match[1])}. ház`;
+  return raw;
+}
 function prettyPlanetName(key) {
   const normalized = String(key).replace(/[_\s-]/g, '').toLowerCase();
   return PLANET_NAMES[normalized] || readableLabel(key);
@@ -296,7 +303,7 @@ function renderChartData(data) {
       value.textContent = position;
       const meta = document.createElement('p');
       const metaParts = [];
-      if (details.house !== undefined && details.house !== null) metaParts.push(`${details.house}. ház`);
+      if (details.house !== undefined && details.house !== null) metaParts.push(formatHouseLabel(details.house));
       if (details.retrograde === true) metaParts.push('Retrográd mozgás');
       meta.textContent = metaParts.join(' · ') || ' ';
       card.append(label, value, meta);
@@ -761,7 +768,7 @@ function openPremiumReport() {
     return '<section class="chapter"><h2>'+escapeHtml(title)+'</h2><p class="focus"><b>Kapcsolódó jelölő:</b> '+escapeHtml(sign)+' · '+escapeHtml(focus)+'</p>'+paragraphs.map(p=>'<p>'+escapeHtml(p)+'</p>').join('')+'<h3>Reflexiós gyakorlat</h3><p>'+escapeHtml(questions)+'</p><div class="reflection-writing-space" aria-label="Vonalazott jegyzethely"></div></section>';
   };
   const planetNames = {sun:'Nap',moon:'Hold',mercury:'Merkúr',venus:'Vénusz',mars:'Mars',jupiter:'Jupiter',saturn:'Szaturnusz',uranus:'Uránusz',neptune:'Neptunusz',pluto:'Plútó'};
-  const positions=Object.entries(planets).filter(([,v])=>v&&typeof v==='object').map(([key,v])=>{const normalized=key.replace(/[_\\s-]/g,'').toLowerCase(),sign=getSign(v),pos=longitudePosition(v.longitude);return {name:planetNames[normalized]||prettyPlanetName(key),sign,degree:pos?.degree!=null?pos.degree.toFixed(2)+'°':'',house:v.house!=null?v.house+'. ház':'',retro:v.retrograde===true?'retrográd':'',normalized};});
+  const positions=Object.entries(planets).filter(([,v])=>v&&typeof v==='object').map(([key,v])=>{const normalized=key.replace(/[_\\s-]/g,'').toLowerCase(),sign=getSign(v),pos=longitudePosition(v.longitude);return {name:planetNames[normalized]||prettyPlanetName(key),sign,degree:pos?.degree!=null?pos.degree.toFixed(2)+'°':'',house:v.house!=null?formatHouseLabel(v.house):'',retro:v.retrograde===true?'retrográd':'',normalized};});
   const planetFocus={sun:'identitás, tudatos irány és önkifejezés',moon:'érzelmi szükségletek és belső biztonság',mercury:'gondolkodás, tanulás és kommunikáció',venus:'értékek, vonzalom és kapcsolati harmónia',mars:'kezdeményezés, energia és konfliktuskezelés',jupiter:'növekedés, hitrendszerek és táguló perspektíva',saturn:'keretek, felelősség és hosszú távú tanulás',uranus:'függetlenség, változás és újítás',neptune:'képzelet, idealizálás és érzékenység',pluto:'mély átalakulás, kontroll és megújulás'};
   const planetChapters=positions.map(p=>chapter(p.name+' a '+p.sign+' jegyében',p.sign,planetFocus[p.normalized]||'a bolygó szimbolikus témája', 'Írj le egy konkrét élethelyzetet, amelyben ez a téma megjelent. Mi volt a megfigyelhető tény, milyen értelmezést adtál neki, és milyen alternatív magyarázat lehetséges?')+'<p class="position"><b>Képletadat:</b> '+escapeHtml(p.degree)+' · '+escapeHtml(p.house)+' · '+escapeHtml(p.retro)+'</p>').join('');
   const mainChapters=[
