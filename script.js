@@ -699,7 +699,20 @@ function openPremiumReport() {
   <h2>Gyakorlati reflexió</h2><p>Válassz egy kérdést, jegyezd fel a saját válaszodat, majd egy hét múlva tekints vissza rá. Az értelmezést kezeld gondolatébresztő keretként, ne döntési vagy egészségügyi tanácsként.</p>
   <p class="lead">CosmyDay · Az asztrológia szimbolikus értelmezési rendszer.</p></body></html>`;
   const win = window.open('', '_blank');
-  if (!win) { setStatus(chartStatus, 'A riportablak megnyitását a böngésző blokkolta. Engedélyezd a felugró ablakot, majd próbáld újra.', true); return; }
+  if (!win) {
+    const inlineReport = document.createElement('iframe');
+    inlineReport.title = 'CosmyDay prémium képletelemzés';
+    inlineReport.style.width = '100%';
+    inlineReport.style.minHeight = '900px';
+    inlineReport.style.border = '1px solid #334155';
+    inlineReport.style.borderRadius = '12px';
+    inlineReport.style.background = '#fff';
+    inlineReport.srcdoc = html;
+    chartResults.append(inlineReport);
+    setStatus(chartStatus, 'A böngésző blokkolta az új ablakot, ezért a prémium riport az oldalon belül nyílt meg. A riport tetején található gombbal mentheted PDF-ként.');
+    inlineReport.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
   win.document.open(); win.document.write(html); win.document.close();
 }
 
