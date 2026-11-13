@@ -351,34 +351,56 @@ function renderChartData(data) {
   }
   const premiumStatus = document.createElement('p');
   premiumStatus.className = 'premium-status';
-  premiumStatus.textContent = 'A prémium értelmezés későbbi fizetős szolgáltatásként lesz elérhető.';
+  premiumStatus.textContent = 'A prémium riport díja 5 000 Ft. A választható magasabb összegek önkéntes támogatások, amelyek a projekt fenntartását segítik; a szolgáltatás tartalma minden összegnél azonos.';
+  const paymentExplainer = document.createElement('div');
+  paymentExplainer.className = 'payment-explainer';
+  paymentExplainer.innerHTML = '<h4>Mit kapsz a fizetésért?</h4><p>A fizetés a személyre szabott, részletes asztrológiai önismereti riport elkészítését és PDF formátumban történő mentési lehetőségét teszi elérhetővé. A riport a kiszámított születési képleted adataira épül, fejezeteket és nyomtatható, kézzel kitölthető munkalapokat tartalmaz.</p><p><strong>Az összegválasztás jelentése:</strong> 5 000 Ft a riporthoz kapcsolódó alapösszeg. 10 000–25 000 Ft között ennél nagyobb, önkéntes támogatást is választhatsz. A magasabb összeg nem jelent több fejezetet, külön funkciót, gyorsabb teljesítést vagy más többletszolgáltatást. Minden választott összeg ugyanazt a riportot nyitja meg.</p><p>A fizetést a Stripe biztonságos fizetési felületén teljesíted. A CosmyDay nem kapja meg és nem tárolja a bankkártyád teljes adatait.</p>';
   const paymentControls = document.createElement('div');
   paymentControls.className = 'premium-payment-controls';
   const amountLabel = document.createElement('label');
-  amountLabel.textContent = 'Támogatás összege';
+  amountLabel.textContent = 'Választott támogatási összeg';
   const amountSelect = document.createElement('select');
-  amountSelect.setAttribute('aria-label', 'Támogatás összege');
+  amountSelect.setAttribute('aria-label', 'Választott támogatási összeg');
   for (const amount of [5000, 10000, 15000, 20000, 25000]) {
     const option = document.createElement('option');
     option.value = String(amount);
     option.textContent = amount.toLocaleString('hu-HU') + ' Ft';
     amountSelect.append(option);
   }
-  const previouslyPaidSession = localStorage.getItem('cosmyday_paid_session_id');
+  const legalAcceptance = document.createElement('div');
+  legalAcceptance.className = 'legal-acceptance';
+  const makeLegalCheckbox = (id, labelHtml) => {
+    const label = document.createElement('label');
+    label.className = 'legal-check-label';
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = id;
+    checkbox.required = true;
+    label.append(checkbox);
+    const text = document.createElement('span');
+    text.innerHTML = labelHtml;
+    label.append(text);
+    legalAcceptance.append(label);
+    return checkbox;
+  };
+  const termsCheckbox = makeLegalCheckbox('accept-terms', 'Elolvastam és elfogadom az <a href="/aszf.html" target="_blank" rel="noopener">Általános Szerződési Feltételeket (ÁSZF)</a>.');
+  const privacyCheckbox = makeLegalCheckbox('accept-privacy', 'Elolvastam az <a href="/adatkezeles.html" target="_blank" rel="noopener">Adatkezelési tájékoztatót</a>, és tudomásul vettem a fizetéshez és a riport készítéséhez kapcsolódó adatkezelést.');
   const paymentButton = document.createElement('button');
   paymentButton.type = 'button';
-  paymentButton.textContent = previouslyPaidSession ? 'Prémium riport megnyitása és PDF mentése' : 'Tovább a Stripe tesztfizetéshez';
-  if (previouslyPaidSession) {
-    paymentButton.addEventListener('click', () => openPremiumReport());
-    premiumStatus.textContent = 'A fizetés ehhez a böngésző-munkamenethez már rögzítve van. Új fizetés nem szükséges.';
-  } else paymentButton.addEventListener('click', async () => {
+  paymentButton.textContent = 'Tovább a Stripe fizetéshez';
+  paymentButton.addEventListener('click', async () => {
+    if (!termsCheckbox.checked || !privacyCheckbox.checked) {
+      premiumStatus.textContent = 'A fizetés megkezdése előtt mindkét nyilatkozatot el kell fogadnod.';
+      (!termsCheckbox.checked ? termsCheckbox : privacyCheckbox).focus();
+      return;
+    }
     paymentButton.disabled = true;
     premiumStatus.textContent = 'A fizetési oldal előkészítése…';
     try {
       const checkoutResponse = await fetch('/.netlify/functions/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: Number(amountSelect.value) })
+        body: JSON.stringify({ amount: Number(amountSelect.value), terms_accepted: true, privacy_acknowledged: true, terms_version: '2026-11-13-draft-1', privacy_version: '2026-11-13-draft-1' })
       });
       const checkoutText = await checkoutResponse.text();
       let checkout;
@@ -394,8 +416,8 @@ function renderChartData(data) {
     }
   });
   amountLabel.append(amountSelect);
-  paymentControls.append(amountLabel, paymentButton);
-  premiumPanel.append(premiumEyebrow, premiumTitle, premiumDescription, premiumList, premiumStatus, paymentControls);
+  paymentControls.append(amountLabel, legalAcceptance, paymentButton);
+  premiumPanel.append(premiumEyebrow, premiumTitle, premiumDescription, premiumList, paymentExplainer, premiumStatus, paymentControls);
   chartResults.append(premiumPanel);
 
   const footer = document.createElement('p');
