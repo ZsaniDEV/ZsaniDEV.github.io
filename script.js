@@ -385,13 +385,16 @@ function renderChartData(data) {
   };
   const termsCheckbox = makeLegalCheckbox('accept-terms', 'Elolvastam és elfogadom az <a href="/aszf.html" target="_blank" rel="noopener">Általános Szerződési Feltételeket (ÁSZF)</a>.');
   const privacyCheckbox = makeLegalCheckbox('accept-privacy', 'Elolvastam az <a href="/adatkezeles.html" target="_blank" rel="noopener">Adatkezelési tájékoztatót</a>, és tudomásul vettem a fizetéshez és a riport készítéséhez kapcsolódó adatkezelést.');
+  const earlyDeliveryCheckbox = makeLegalCheckbox('request-early-delivery', 'Kifejezetten kérem, hogy a digitális riport szolgáltatása a 14 napos elállási határidő lejárta előtt megkezdődjön. Tudomásul veszem, hogy a digitális tartalom teljesítésének megkezdésével a jogszabály szerinti feltételek fennállása esetén elveszíthetem az elállási jogomat.');
   const paymentButton = document.createElement('button');
   paymentButton.type = 'button';
-  paymentButton.textContent = 'Tovább a Stripe fizetéshez';
+  const updatePayButtonLabel = () => { paymentButton.textContent = 'Fizetési kötelezettséggel járó megrendelés · ' + Number(amountSelect.value).toLocaleString('hu-HU') + ' Ft'; };
+  updatePayButtonLabel();
+  amountSelect.addEventListener('change', updatePayButtonLabel);
   paymentButton.addEventListener('click', async () => {
-    if (!termsCheckbox.checked || !privacyCheckbox.checked) {
-      premiumStatus.textContent = 'A fizetés megkezdése előtt mindkét nyilatkozatot el kell fogadnod.';
-      (!termsCheckbox.checked ? termsCheckbox : privacyCheckbox).focus();
+    if (!termsCheckbox.checked || !privacyCheckbox.checked || !earlyDeliveryCheckbox.checked) {
+      premiumStatus.textContent = 'A fizetés előtt az ÁSZF elfogadása, az adatkezelési tájékoztató tudomásulvétele és a digitális riport korai teljesítésére vonatkozó nyilatkozat szükséges.';
+      (!termsCheckbox.checked ? termsCheckbox : !privacyCheckbox.checked ? privacyCheckbox : earlyDeliveryCheckbox).focus();
       return;
     }
     paymentButton.disabled = true;
@@ -400,7 +403,7 @@ function renderChartData(data) {
       const checkoutResponse = await fetch('/.netlify/functions/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: Number(amountSelect.value), terms_accepted: true, privacy_acknowledged: true, terms_version: '2026-11-13-draft-1', privacy_version: '2026-11-13-draft-1' })
+        body: JSON.stringify({ amount: Number(amountSelect.value), terms_accepted: true, privacy_acknowledged: true, early_delivery_requested: true, withdrawal_loss_acknowledged: true, terms_version: '2026-11-13-draft-1', privacy_version: '2026-11-13-draft-1' })
       });
       const checkoutText = await checkoutResponse.text();
       let checkout;
