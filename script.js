@@ -629,3 +629,47 @@ window.addEventListener('focus', () => {
 });
 loadEvents();
 scheduleMidnightRefresh();
+
+async function verifyReturnedPayment() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('payment') !== 'success') return;
+  const sessionId = params.get('session_id');
+  if (!sessionId) {
+    setStatus(chartStatus, 'A fizetés visszaigazolásához hiányzik a munkamenet-azonosító.', true);
+    return;
+  }
+  chartResults.replaceChildren();
+  chartResults.hidden = false;
+  const panel = document.createElement('section');
+  panel.className = 'result-panel';
+  const heading = document.createElement('h3');
+  heading.textContent = 'Stripe fizetés ellenőrzése';
+  const message = document.createElement('p');
+  message.textContent = 'A tranzakciót a Stripe rendszerében ellenőrizzük…';
+  panel.append(heading, message);
+  chartResults.append(panel);
+  try {
+    const response = await fetch('/.netlify/functions/verify-checkout-session?session_id=' + encodeURIComponent(sessionId), {
+      headers: { 'Accept': 'application/json' },
+      cache: 'no-store'
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Az ellenőrzés nem sikerült.');
+    if (!result.paid) {
+      message.textContent = 'A Stripe még nem jelzett sikeresen kifizetett tranzakciót. Fizetés státusza: ' + (result.status || 'ismeretlen') + '.';
+      return;
+    }
+    message.textContent = 'A Stripe visszaigazolta a sikeres tesztfizetést (' + Number(result.amount_huf).toLocaleString('hu-HU') + ' Ft). A prémium riport elkészítése a következő fejlesztési lépés.';
+    const note = document.createElement('p');
+    note.textContent = 'A fizetés ellenőrzése sikeres. Ez az oldal jelenleg még nem állít ki letölthető prémium PDF-riportot.';
+    panel.append(note);
+  } catch (error) {
+    message.textContent = error.message || 'A fizetés ellenőrzése most nem sikerült.';
+  } finally {
+    params.delete('payment');
+    params.delete('session_id');
+    const cleanUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '') + window.location.hash;
+    window.history.replaceState({}, '', cleanUrl);
+  }
+}
+verifyReturnedPayment();
