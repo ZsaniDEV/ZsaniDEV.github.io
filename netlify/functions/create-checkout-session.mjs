@@ -6,7 +6,7 @@ export default async (request) => {
   try { payload = await request.json(); } catch { return new Response(JSON.stringify({ error: 'Hibás kérés.' }), { status: 400, headers: { 'Content-Type': 'application/json' } }); }
   const amount = Number(payload.amount);
   const customerEmail = String(payload.customer_email || '').trim().toLowerCase();
-  if (customerEmail.length > 254 || !/^[^\s@]+@[^\s@]+\\.[^\s@]+$/.test(customerEmail)) return new Response(JSON.stringify({ error: 'Adj meg egy érvényes e-mail címet.' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+  if (customerEmail.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) return new Response(JSON.stringify({ error: 'Adj meg egy érvényes e-mail címet.' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
   if (![5000, 10000, 15000, 20000, 25000].includes(amount)) return new Response(JSON.stringify({ error: 'Érvénytelen támogatási összeg.' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
   if (payload.terms_accepted !== true || payload.privacy_acknowledged !== true || payload.early_delivery_requested !== true || payload.withdrawal_loss_acknowledged !== true || payload.terms_version !== '2026-11-13-draft-1' || payload.privacy_version !== '2026-11-13-draft-1') return new Response(JSON.stringify({ error: 'A fizetéshez szükséges jogi nyilatkozatok elfogadása hiányzik.' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
   const origin = new URL(request.url).origin;
