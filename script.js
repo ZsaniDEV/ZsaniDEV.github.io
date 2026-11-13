@@ -409,6 +409,16 @@ function renderChartData(data) {
   amountSelect.addEventListener('change', updatePayButtonLabel);
   paymentButton.addEventListener('click', async () => {
     if (!emailInput.checkValidity()) { premiumStatus.textContent = 'Adj meg egy érvényes e-mail címet a vásárláshoz.'; emailInput.reportValidity(); emailInput.focus(); return; }
+    // Owner-only complimentary access for the user's designated test email.
+    if (emailInput.value.trim().toLowerCase() === 'dev.zsani@gmail.com') {
+      premiumStatus.textContent = 'Tulajdonosi hozzáférés felismerve. A saját képleted riportját díjmentesen megnyithatod.';
+      const ownerReportButton = document.createElement('button');
+      ownerReportButton.type = 'button';
+      ownerReportButton.textContent = 'Saját képletem riportja · díjmentes';
+      ownerReportButton.addEventListener('click', openPremiumReport);
+      premiumStatus.append(ownerReportButton);
+      return;
+    }
     if (!termsCheckbox.checked || !privacyCheckbox.checked || !earlyDeliveryCheckbox.checked) {
       premiumStatus.textContent = 'A fizetés előtt az ÁSZF elfogadása, az adatkezelési tájékoztató tudomásulvétele és a digitális riport korai teljesítésére vonatkozó nyilatkozat szükséges.';
       (!termsCheckbox.checked ? termsCheckbox : !privacyCheckbox.checked ? privacyCheckbox : earlyDeliveryCheckbox).focus();
