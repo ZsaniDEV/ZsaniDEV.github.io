@@ -1,6 +1,6 @@
 export default async (request) => {
   if (request.method !== 'POST') return new Response(JSON.stringify({ error: 'POST metódus szükséges.' }), { status: 405, headers: { 'Content-Type': 'application/json' } });
-  const secret = Netlify.env.get('STRIPE_SECRET_KEY');
+  const secret = process.env.STRIPE_SECRET_KEY;
   if (!secret) return new Response(JSON.stringify({ error: 'A Stripe tesztkulcs nincs beállítva a Netlify környezeti változói között.' }), { status: 503, headers: { 'Content-Type': 'application/json' } });
   let payload;
   try { payload = await request.json(); } catch { return new Response(JSON.stringify({ error: 'Hibás kérés.' }), { status: 400, headers: { 'Content-Type': 'application/json' } }); }
