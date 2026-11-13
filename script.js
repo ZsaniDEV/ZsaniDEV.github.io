@@ -188,12 +188,16 @@ function createDisclosure(titleText, countText = '') {
   return { details, content };
 }
 function renderChartData(data) {
-  try {
-    localStorage.setItem('cosmyday_premium_report_data', JSON.stringify({
-      data,
-      birth: { date: dateInput.value, time: String(form.elements.birthTime.value || '12:00'), place: String(form.elements.birthPlace.value || '').trim() }
-    }));
-  } catch (error) { console.warn('A képletadatok ideiglenes mentése nem sikerült.', error); }
+  const reportSnapshot = JSON.stringify({
+    data,
+    birth: { date: form.elements.birthDate.value, time: String(form.elements.birthTime.value || '12:00'), place: String(form.elements.birthPlace.value || '').trim() },
+    savedAt: new Date().toISOString()
+  });
+  // Keep the chart in both persistent and same-tab session storage before any Stripe redirect.
+  try { localStorage.setItem('cosmyday_premium_report_data', reportSnapshot); }
+  catch (error) { console.warn('A képletadatok tartós mentése nem sikerült.', error); }
+  try { sessionStorage.setItem('cosmyday_premium_report_data', reportSnapshot); }
+  catch (error) { console.warn('A képletadatok munkamenet-mentése nem sikerült.', error); }
   chartResults.replaceChildren();
   chartResults.hidden = false;
   const heading = document.createElement('div');
@@ -647,8 +651,12 @@ scheduleMidnightRefresh();
 
 
 function openPremiumReport() {
-  let saved;
+  let saved = null;
+  // Prefer local storage; use same-tab session storage as a fallback after redirects.
   try { saved = JSON.parse(localStorage.getItem('cosmyday_premium_report_data') || 'null'); } catch { saved = null; }
+  if (!saved?.data || !saved?.birth) {
+    try { saved = JSON.parse(sessionStorage.getItem('cosmyday_premium_report_data') || 'null'); } catch { saved = null; }
+  }
   if (!saved?.data || !saved?.birth) {
     setStatus(chartStatus, 'A riporthoz szükséges képletadatok nem találhatók ebben a böngésző-munkamenetben. Számítsd ki újra a képletet ezen az eszközön.', true);
     return;
