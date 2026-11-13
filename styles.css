@@ -42,3 +42,8 @@ footer{max-width:1120px;margin:20px auto 0;padding:28px;display:flex;flex-wrap:w
 .premium-preview ul{padding-left:20px;color:#d9deea;line-height:1.8;font-size:.9rem}
 .premium-preview li{padding-left:3px;margin:3px 0}
 .premium-status{margin:18px 0 0;padding-top:14px;border-top:1px solid var(--line);color:var(--gold);font-size:.86rem;font-weight:650;line-height:1.6}
+
+
+/* Egyértelmű jelzés a fejlesztői preview-hoz. */
+.dev-version-badge{position:fixed;right:14px;bottom:14px;z-index:9999;padding:7px 11px;border:1px solid #d9ba7b;border-radius:8px;background:#111827;color:#d9ba7b;font:600 11px/1.4 Arial,sans-serif;letter-spacing:.04em;box-shadow:0 3px 12px rgba(0,0,0,.35)}
+@media(max-width:600px){.dev-version-badge{right:8px;bottom:8px;font-size:9px;padding:5px 7px}}
