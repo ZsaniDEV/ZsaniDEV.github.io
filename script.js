@@ -376,8 +376,13 @@ function renderChartData(data) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: Number(amountSelect.value) })
       });
-      const checkout = await checkoutResponse.json();
-      if (!checkoutResponse.ok || !checkout.url) throw new Error(checkout.error || 'A Stripe fizetési oldal nem érhető el.');
+      const checkoutText = await checkoutResponse.text();
+      let checkout;
+      try { checkout = JSON.parse(checkoutText); } catch {
+        const contentType = checkoutResponse.headers.get('content-type') || '';
+        throw new Error('A Netlify fizetési funkció nem JSON választ adott (HTTP ' + checkoutResponse.status + ', ' + contentType + '). Valószínűleg a legutóbbi deploy még nem tartalmazza a create-checkout-session funkciót. Ellenőrizd a Netlify Deploy logot.');
+      }
+      if (!checkoutResponse.ok || !checkout.url) throw new Error(checkout.error || 'A Stripe fizetési oldal nem érhető el (HTTP ' + checkoutResponse.status + ').');
       window.location.assign(checkout.url);
     } catch (error) {
       premiumStatus.textContent = error.message || 'A fizetés indítása nem sikerült.';
