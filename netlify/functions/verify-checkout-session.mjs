@@ -5,7 +5,7 @@ export default async (request) => {
   });
   if (request.method !== 'GET') return json({ error: 'GET metódus szükséges.' }, 405);
 
-  const secret = Netlify.env.get('STRIPE_SECRET_KEY');
+  const secret = process.env.STRIPE_SECRET_KEY;
   if (!secret) return json({ error: 'A Stripe titkos kulcs nincs beállítva.' }, 503);
 
   const sessionId = new URL(request.url).searchParams.get('session_id') || '';
