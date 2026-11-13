@@ -342,7 +342,41 @@ function renderChartData(data) {
   const premiumStatus = document.createElement('p');
   premiumStatus.className = 'premium-status';
   premiumStatus.textContent = 'A prémium értelmezés későbbi fizetős szolgáltatásként lesz elérhető.';
-  premiumPanel.append(premiumEyebrow, premiumTitle, premiumDescription, premiumList, premiumStatus);
+  const paymentControls = document.createElement('div');
+  paymentControls.className = 'premium-payment-controls';
+  const amountLabel = document.createElement('label');
+  amountLabel.textContent = 'Támogatás összege';
+  const amountSelect = document.createElement('select');
+  amountSelect.setAttribute('aria-label', 'Támogatás összege');
+  for (const amount of [5000, 10000, 15000, 20000, 25000]) {
+    const option = document.createElement('option');
+    option.value = String(amount);
+    option.textContent = amount.toLocaleString('hu-HU') + ' Ft';
+    amountSelect.append(option);
+  }
+  const paymentButton = document.createElement('button');
+  paymentButton.type = 'button';
+  paymentButton.textContent = 'Tovább a Stripe tesztfizetéshez';
+  paymentButton.addEventListener('click', async () => {
+    paymentButton.disabled = true;
+    premiumStatus.textContent = 'A fizetési oldal előkészítése…';
+    try {
+      const checkoutResponse = await fetch('/.netlify/functions/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: Number(amountSelect.value) })
+      });
+      const checkout = await checkoutResponse.json();
+      if (!checkoutResponse.ok || !checkout.url) throw new Error(checkout.error || 'A Stripe fizetési oldal nem érhető el.');
+      window.location.assign(checkout.url);
+    } catch (error) {
+      premiumStatus.textContent = error.message || 'A fizetés indítása nem sikerült.';
+      paymentButton.disabled = false;
+    }
+  });
+  amountLabel.append(amountSelect);
+  paymentControls.append(amountLabel, paymentButton);
+  premiumPanel.append(premiumEyebrow, premiumTitle, premiumDescription, premiumList, premiumStatus, paymentControls);
   chartResults.append(premiumPanel);
 
   const footer = document.createElement('p');
