@@ -360,10 +360,14 @@ function renderChartData(data) {
     option.textContent = amount.toLocaleString('hu-HU') + ' Ft';
     amountSelect.append(option);
   }
+  const previouslyPaidSession = sessionStorage.getItem('cosmyday_paid_session_id');
   const paymentButton = document.createElement('button');
   paymentButton.type = 'button';
-  paymentButton.textContent = 'Tovább a Stripe tesztfizetéshez';
-  paymentButton.addEventListener('click', async () => {
+  paymentButton.textContent = previouslyPaidSession ? 'Prémium riport megnyitása és PDF mentése' : 'Tovább a Stripe tesztfizetéshez';
+  if (previouslyPaidSession) {
+    paymentButton.addEventListener('click', () => openPremiumReport());
+    premiumStatus.textContent = 'A fizetés ehhez a böngésző-munkamenethez már rögzítve van. Új fizetés nem szükséges.';
+  } else paymentButton.addEventListener('click', async () => {
     paymentButton.disabled = true;
     premiumStatus.textContent = 'A fizetési oldal előkészítése…';
     try {
@@ -723,6 +727,7 @@ async function verifyReturnedPayment() {
       message.textContent = 'A Stripe még nem jelzett sikeresen kifizetett tranzakciót. Fizetés státusza: ' + (result.status || 'ismeretlen') + '.';
       return;
     }
+    try { sessionStorage.setItem('cosmyday_paid_session_id', sessionId); } catch (error) { console.warn('A fizetési munkamenet mentése nem sikerült.', error); }
     message.textContent = 'A Stripe visszaigazolta a sikeres fizetést (' + Number(result.amount_huf).toLocaleString('hu-HU') + ' Ft). A személyes riport elkészíthető.';
     const note = document.createElement('p');
     note.textContent = 'A riport nyomtatási nézetben nyílik meg; a böngészőben PDF-ként mentheted.';
