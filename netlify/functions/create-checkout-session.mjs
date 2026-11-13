@@ -6,7 +6,7 @@ export default async (request) => {
   try { payload = await request.json(); } catch { return new Response(JSON.stringify({ error: 'Hibás kérés.' }), { status: 400, headers: { 'Content-Type': 'application/json' } }); }
   const amount = Number(payload.amount);
   if (![5000, 10000, 15000, 20000, 25000].includes(amount)) return new Response(JSON.stringify({ error: 'Érvénytelen támogatási összeg.' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
-  if (payload.terms_accepted !== true || payload.privacy_acknowledged !== true || payload.terms_version !== '2026-11-13-draft-1' || payload.privacy_version !== '2026-11-13-draft-1') return new Response(JSON.stringify({ error: 'A fizetéshez szükséges jogi nyilatkozatok elfogadása hiányzik.' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+  if (payload.terms_accepted !== true || payload.privacy_acknowledged !== true || payload.early_delivery_requested !== true || payload.withdrawal_loss_acknowledged !== true || payload.terms_version !== '2026-11-13-draft-1' || payload.privacy_version !== '2026-11-13-draft-1') return new Response(JSON.stringify({ error: 'A fizetéshez szükséges jogi nyilatkozatok elfogadása hiányzik.' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
   const origin = new URL(request.url).origin;
   const form = new URLSearchParams();
   form.set('mode', 'payment');
@@ -22,6 +22,8 @@ export default async (request) => {
   form.set('metadata[privacy_acknowledged]', 'true');
   form.set('metadata[terms_version]', payload.terms_version);
   form.set('metadata[privacy_version]', payload.privacy_version);
+  form.set('metadata[early_delivery_requested]', 'true');
+  form.set('metadata[withdrawal_loss_acknowledged]', 'true');
   try {
     const response = await fetch('https://api.stripe.com/v1/checkout/sessions', { method: 'POST', headers: { Authorization: 'Bearer ' + secret, 'Content-Type': 'application/x-www-form-urlencoded' }, body: form });
     const data = await response.json();
