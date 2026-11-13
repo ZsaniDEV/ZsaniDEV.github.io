@@ -189,7 +189,7 @@ function createDisclosure(titleText, countText = '') {
 }
 function renderChartData(data) {
   try {
-    sessionStorage.setItem('cosmyday_premium_report_data', JSON.stringify({
+    localStorage.setItem('cosmyday_premium_report_data', JSON.stringify({
       data,
       birth: { date: dateInput.value, time: String(form.elements.birthTime.value || '12:00'), place: String(form.elements.birthPlace.value || '').trim() }
     }));
@@ -360,7 +360,7 @@ function renderChartData(data) {
     option.textContent = amount.toLocaleString('hu-HU') + ' Ft';
     amountSelect.append(option);
   }
-  const previouslyPaidSession = sessionStorage.getItem('cosmyday_paid_session_id');
+  const previouslyPaidSession = localStorage.getItem('cosmyday_paid_session_id');
   const paymentButton = document.createElement('button');
   paymentButton.type = 'button';
   paymentButton.textContent = previouslyPaidSession ? 'Prémium riport megnyitása és PDF mentése' : 'Tovább a Stripe tesztfizetéshez';
@@ -648,7 +648,7 @@ scheduleMidnightRefresh();
 
 function openPremiumReport() {
   let saved;
-  try { saved = JSON.parse(sessionStorage.getItem('cosmyday_premium_report_data') || 'null'); } catch { saved = null; }
+  try { saved = JSON.parse(localStorage.getItem('cosmyday_premium_report_data') || 'null'); } catch { saved = null; }
   if (!saved?.data || !saved?.birth) {
     setStatus(chartStatus, 'A riporthoz szükséges képletadatok nem találhatók ebben a böngésző-munkamenetben. Számítsd ki újra a képletet ezen az eszközön.', true);
     return;
@@ -745,7 +745,7 @@ async function verifyReturnedPayment() {
       message.textContent = 'A Stripe még nem jelzett sikeresen kifizetett tranzakciót. Fizetés státusza: ' + (result.status || 'ismeretlen') + '.';
       return;
     }
-    try { sessionStorage.setItem('cosmyday_paid_session_id', sessionId); } catch (error) { console.warn('A fizetési munkamenet mentése nem sikerült.', error); }
+    try { localStorage.setItem('cosmyday_paid_session_id', sessionId); } catch (error) { console.warn('A fizetési munkamenet mentése nem sikerült.', error); }
     message.textContent = 'A Stripe visszaigazolta a sikeres fizetést (' + Number(result.amount_huf).toLocaleString('hu-HU') + ' Ft). A személyes riport elkészíthető.';
     const note = document.createElement('p');
     note.textContent = 'A riport nyomtatási nézetben nyílik meg; a böngészőben PDF-ként mentheted.';
